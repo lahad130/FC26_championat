@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — FC26 Championnat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0a0a0f; --card:rgba(255,255,255,0.05); --border:rgba(255,255,255,0.1);
+      --gold:#ffd700; --green:#22c55e; --blue:#3b82f6; --red:#ef4444; --muted:#888; --text:#e2e8f0;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;min-height:100vh;}
+
+    /* LOGIN */
+    #login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
+    .login-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:40px;width:360px;text-align:center;backdrop-filter:blur(20px);}
+    .login-card h1{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--gold);margin-bottom:6px;}
+    .login-card p{color:var(--muted);margin-bottom:24px;font-size:0.9rem;}
+
+    /* INPUTS */
+    input,select,textarea{width:100%;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1rem;outline:none;transition:border-color .2s;}
+    input:focus,select:focus,textarea:focus{border-color:var(--gold);}
+    input[type=number]{-moz-appearance:textfield;}
+    input::-webkit-inner-spin-button,input::-webkit-outer-spin-button{-webkit-appearance:none;}
+    select option{background:#1a1a2e;}
+    label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:4px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;transition:all .2s;}
+    .btn-gold{background:var(--gold);color:#000;} .btn-gold:hover{background:#ffed4a;transform:translateY(-1px);}
+    .btn-green{background:var(--green);color:#fff;} .btn-green:hover{background:#16a34a;}
+    .btn-red{background:var(--red);color:#fff;} .btn-red:hover{background:#dc2626;}
+    .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);} .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+    .btn-blue{background:var(--blue);color:#fff;} .btn-blue:hover{background:#2563eb;}
+    .btn-sm{padding:6px 12px;font-size:.85rem;}
+    .btn-full{width:100%;justify-content:center;}
+    .btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important;}
+
+    /* LAYOUT */
+    #admin-app{display:none;}
+    .top-bar{background:rgba(0,0,0,.85);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);}
+    .top-bar-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);letter-spacing:2px;}
+    .top-bar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+    .status-badge{padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700;}
+    .s-none{background:rgba(239,68,68,.15);color:var(--red);border:1px solid var(--red);}
+    .s-ok{background:rgba(34,197,94,.15);color:var(--green);border:1px solid var(--green);}
+    .s-mod{background:rgba(255,215,0,.15);color:var(--gold);border:1px solid var(--gold);}
+    .s-pub{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid var(--blue);}
+
+    /* TABS */
+    .nav-tabs{display:flex;gap:4px;padding:16px 24px 0;border-bottom:1px solid var(--border);overflow-x:auto;}
+    .nav-tab{padding:10px 20px;border-radius:8px 8px 0 0;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;transition:all .2s;}
+    .nav-tab:hover{color:var(--text);}
+    .nav-tab.active{background:var(--card);border-color:var(--border);border-bottom-color:var(--bg);color:var(--gold);}
+
+    .tab-pane{display:none;padding:24px;max-width:1100px;margin:0 auto;}
+    .tab-pane.active{display:block;}
+
+    /* CARDS */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;backdrop-filter:blur(10px);}
+    .card-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);letter-spacing:1px;margin-bottom:16px;}
+
+    /* FORM GRID */
+    .fg-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+    .fg-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+    .fg-4{display:grid;grid-template-columns:2fr 2fr 60px auto;gap:8px;align-items:end;margin-bottom:8px;}
+    .fg-1{margin-bottom:12px;}
+
+    /* TABLE */
+    .data-table{width:100%;border-collapse:collapse;}
+    .data-table th{text-align:left;padding:10px 14px;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);}
+    .data-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+    .data-table tbody tr:hover td{background:rgba(255,255,255,.03);}
+    .rank-num{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--muted);}
+    .team-logo-sm{width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:8px;}
+    .val-big{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--green);}
+    .val-muted{font-size:.75rem;color:var(--muted);}
+
+    /* ALERT */
+    .alert{padding:12px 16px;border-radius:8px;font-size:.92rem;margin-bottom:12px;}
+    .a-success{background:rgba(34,197,94,.15);border:1px solid var(--green);color:var(--green);}
+    .a-error{background:rgba(239,68,68,.15);border:1px solid var(--red);color:var(--red);}
+    .a-info{background:rgba(59,130,246,.15);border:1px solid var(--blue);color:var(--blue);}
+
+    /* SECTION HEADER */
+    .sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .sec-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);letter-spacing:2px;}
+
+    .scorer-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+
+    /* SPINNER */
+    .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* PUBLISH OVERLAY */
+    #publish-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center;}
+    #publish-overlay.show{display:flex;}
+    .publish-box{background:#111;border:1px solid var(--border);border-radius:16px;padding:32px;text-align:center;max-width:400px;}
+    .publish-box h3{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);margin-bottom:8px;}
+
+    /* GITHUB SETTINGS */
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+
+    @media(max-width:640px){
+      .fg-2,.fg-3,.fg-4,.settings-grid{grid-template-columns:1fr;}
+      .top-bar-actions{gap:4px;}
+      .btn{font-size:.8rem;padding:8px 10px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1>⚽ FC26 Admin</h1>
+    <p>Panneau d'administration du championnat</p>
+    <div style="margin-bottom:12px;">
+      <label>Mot de passe</label>
+      <input type="password" id="login-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <p id="login-err" style="color:var(--red);font-size:.85rem;margin-bottom:12px;display:none;">❌ Mot de passe incorrect</p>
+    <button class="btn btn-gold btn-full" onclick="doLogin()">Connexion</button>
+  </div>
+</div>
+
+<!-- ════ PUBLISH OVERLAY ════ -->
+<div id="publish-overlay">
+  <div class="publish-box">
+    <div class="spin" style="width:32px;height:32px;margin:0 auto 16px;border-width:3px;"></div>
+    <h3 id="pub-title">Publication en cours…</h3>
+    <p id="pub-msg" style="color:var(--muted);font-size:.9rem;margin-top:6px;"></p>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div id="admin-app">
+
+  <div class="top-bar">
+    <div class="top-bar-title">⚙️ FC26 Admin</div>
+    <div class="top-bar-actions">
+      <span id="status-badge" class="status-badge s-none">Non connecté</span>
+      <button class="btn btn-outline btn-sm" onclick="switchTab('settings',document.querySelector('[data-tab=settings]'))">⚙ Config</button>
+      <button class="btn btn-outline btn-sm" id="load-btn" onclick="loadFromGitHub()" disabled>🔄 Charger</button>
+      <button class="btn btn-blue btn-sm" id="pub-btn" onclick="publishToGitHub()" disabled>🚀 Publier</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-tab="buteurs"  onclick="switchTab('buteurs',this)">⚽ Buteurs</button>
+    <button class="nav-tab"        data-tab="passeurs" onclick="switchTab('passeurs',this)">🎯 Passeurs</button>
+    <button class="nav-tab"        data-tab="match"    onclick="switchTab('match',this)">📋 Match</button>
+    <button class="nav-tab"        data-tab="settings" onclick="switchTab('settings',this)">⚙ Config</button>
+  </div>
+
+  <!-- ══ BUTEURS ══ -->
+  <div id="tab-buteurs" class="tab-pane active">
+    <div class="sec-header">
+      <div class="sec-title">⚽ Buteurs</div>
+      <button class="btn btn-gold btn-sm" onclick="toggleForm('form-but')">+ Ajouter</button>
+    </div>
+    <div id="form-but" class="card" style="display:none;">
+      <div class="card-title">Nouveau buteur</div>
+      <div class="fg-3">
+        <div><label>Joueur</label><input id="ab-name" placeholder="Pseudo"></div>
+        <div><label>Équipe</label><select id="ab-team"></select></div>
+        <div><label>Buts</label><input id="ab-goals" type="number" min="1" value="1"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-green btn-sm" onclick="addButeur()">✓ Valider</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleForm('form-but')">✕</button>
+      </div>
+    </div>
+    <div id="alert-but"></div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Buts</th><th>Actions</th></tr></thead>
+        <tbody id="but-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ PASSEURS ══ -->
+  <div id="tab-passeurs" class="tab-pane">
+    <div class="sec-header">
+      <div class="sec-title">🎯 Passeurs</div>
+      <button class="btn btn-gold btn-sm" onclick="toggleForm('form-pass')">+ Ajouter</button>
+    </div>
+    <div id="form-pass" class="card" style="display:none;">
+      <div class="card-title">Nouveau passeur</div>
+      <div class="fg-3">
+        <div><label>Joueur</label><input id="ap-name" placeholder="Pseudo"></div>
+        <div><label>Équipe</label><select id="ap-team"></select></div>
+        <div><label>Passes</label><input id="ap-goals" type="number" min="1" value="1"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-green btn-sm" onclick="addPasseur()">✓ Valider</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleForm('form-pass')">✕</button>
+      </div>
+    </div>
+    <div id="alert-pass"></div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Passes</th><th>Actions</th></tr></thead>
+        <tbody id="pass-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ MATCH ══ -->
+  <div id="tab-match" class="tab-pane">
+    <div class="sec-header"><div class="sec-title">📋 Ajouter un Match</div></div>
+    <div class="card">
+      <div class="card-title">Informations</div>
+      <div class="fg-3">
+        <div><label>Journée</label><select id="m-journee"></select></div>
+        <div><label>Équipe 1</label><select id="m-team1"></select></div>
+        <div><label>Équipe 2</label><select id="m-team2"></select></div>
+      </div>
+      <div class="fg-2">
+        <div><label>Score Équipe 1</label><input id="m-score1" type="number" min="0" value="0"></div>
+        <div><label>Score Équipe 2</label><input id="m-score2" type="number" min="0" value="0"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚽ Buteurs</div>
+      <div id="scorer-rows" class="scorer-rows"></div>
+      <button class="btn btn-outline btn-sm" onclick="addRow('scorer')">+ Buteur</button>
+    </div>
+    <div class="card">
+      <div class="card-title">🎯 Passeurs décisifs</div>
+      <div id="assist-rows" class="scorer-rows"></div>
+      <button class="btn btn-outline btn-sm" onclick="addRow('assist')">+ Passeur</button>
+    </div>
+    <button class="btn btn-gold" style="margin-top:4px;" onclick="applyMatch()">✓ Appliquer aux statistiques</button>
+    <div id="alert-match" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- ══ SETTINGS ══ -->
+  <div id="tab-settings" class="tab-pane">
+    <div class="sec-header"><div class="sec-title">⚙ Configuration GitHub</div></div>
+    <div class="card">
+      <div class="card-title">Connexion GitHub</div>
+      <p style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">
+        Ces informations permettent à l'admin de publier directement sur GitHub.<br>
+        <strong style="color:var(--gold);">Elles sont stockées uniquement dans ce navigateur.</strong>
+      </p>
+      <div class="settings-grid">
+        <div><label>Nom d'utilisateur GitHub</label><input id="gh-owner" placeholder="ex: monutilisateur"></div>
+        <div><label>Nom du dépôt (repo)</label><input id="gh-repo" placeholder="ex: FC26_championat"></div>
+      </div>
+      <div class="fg-1">
+        <label>Personal Access Token (PAT)
+          <span style="font-size:.7rem;color:var(--blue);cursor:pointer;text-transform:none;font-weight:400;" onclick="window.open('https://github.com/settings/tokens/new?scopes=repo&description=FC26+Admin')"> → Créer un token ici</span>
+        </label>
+        <input id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-green" onclick="saveSettings()">💾 Enregistrer</button>
+        <button class="btn btn-outline btn-sm" onclick="testConnection()">🔗 Tester la connexion</button>
+        <span id="conn-result" style="font-size:.85rem;"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Comment configurer Netlify</div>
+      <div style="color:var(--muted);font-size:.9rem;line-height:1.7;">
+        <p>Après avoir créé le repo GitHub et connecté Netlify :</p>
+        <ol style="margin-left:20px;margin-top:8px;">
+          <li>Va sur <strong style="color:var(--text);">Netlify → ton site → Site configuration → Build & deploy</strong></li>
+          <li>Dans <em>Branch to deploy</em> → mets <strong style="color:var(--gold);">main</strong></li>
+          <li>À chaque "Publier" depuis cet admin, le site se met à jour automatiquement en ~30 secondes</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Mot de passe Admin</div>
+      <div class="fg-2">
+        <div><label>Nouveau mot de passe</label><input id="new-pwd" type="password" placeholder="••••••••"></div>
+        <div><label>Confirmer</label><input id="confirm-pwd" type="password" placeholder="••••••••"></div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="changePwd()">Changer le mot de passe</button>
+      <span id="pwd-result" style="font-size:.85rem;margin-left:10px;"></span>
+    </div>
+  </div>
+
+</div><!-- /admin-app -->
+
+<script>
+// ════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════
+const DEFAULT_PWD = 'fc26admin';
+
+const TEAMS = [
+  {name:'ASC Galgui',    logo:'ASC_Galgui.webp'},
+  {name:'Birago CP',     logo:'birago_cp.webp'},
+  {name:'Blacksquad',    logo:'Blacksquad.webp'},
+  {name:'Ghos SN',       logo:'Ghos_sn.webp'},
+  {name:'Hood Bi',       logo:'Hood_bi.webp'},
+  {name:'Inazuma Futur', logo:'Inazuma_future.webp'},
+  {name:'Kuluna Yi',     logo:'kuluna_yi.webp'},
+  {name:'LKS Kaido',     logo:'Lks_kaido.webp'},
+  {name:'Pluto SN',      logo:'Pluto_sn.webp'},
+  {name:'Senegal',       logo:'Senegal.webp'},
+  {name:'Senecao',       logo:'Senecao.webp'},
+  {name:'Tappp SN',      logo:'Tapp_fc.webp'},
+  {name:'Teranga Boyz',  logo:'Teranga_boys.webp'},
+  {name:'Thiapz Prime',  logo:'Thiapz_prime.webp'},
+  {name:"Voile D'or",    logo:'Voile_dor.webp'},
+  {name:'Xalatt Niakk',  logo:'xalatt_niak.webp'},
+];
+
+// ════════════════════════════════════
+//  STATE
+// ════════════════════════════════════
+let fileContent = '';
+let fileSha     = '';
+let buteurs     = [];
+let passeurs    = [];
+let modified    = false;
+let rowId       = 0;
+
+// ════════════════════════════════════
+//  LOGIN
+// ════════════════════════════════════
+function doLogin() {
+  const stored = localStorage.getItem('fc26_pwd') || DEFAULT_PWD;
+  if (document.getElementById('login-pwd').value === stored) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-app').style.display = 'block';
+    init();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+function changePwd() {
+  const np = document.getElementById('new-pwd').value;
+  const cp = document.getElementById('confirm-pwd').value;
+  const res = document.getElementById('pwd-result');
+  if (!np || np.length < 4) { res.style.color='var(--red)'; res.textContent='Trop court (min 4 caractères)'; return; }
+  if (np !== cp) { res.style.color='var(--red)'; res.textContent='Les mots de passe ne correspondent pas'; return; }
+  localStorage.setItem('fc26_pwd', np);
+  res.style.color='var(--green)'; res.textContent='✓ Mot de passe mis à jour';
+}
+
+// ════════════════════════════════════
+//  INIT
+// ════════════════════════════════════
+function init() {
+  const opts = TEAMS.map(t=>`<option value="${t.name}">${t.name}</option>`).join('');
+  ['ab-team','ap-team','m-team1','m-team2'].forEach(id => {
+    document.getElementById(id).innerHTML = opts;
+  });
+  const jSel = document.getElementById('m-journee');
+  for (let i=1;i<=30;i++) jSel.innerHTML += `<option value="${i}">Journée ${i}</option>`;
+  addRow('scorer'); addRow('assist');
+
+  // Load saved settings
+  const owner = localStorage.getItem('gh_owner') || '';
+  const repo  = localStorage.getItem('gh_repo')  || '';
+  const token = localStorage.getItem('gh_token') || '';
+  document.getElementById('gh-owner').value = owner;
+  document.getElementById('gh-repo').value  = repo;
+  document.getElementById('gh-token').value = token;
+
+  if (owner && repo && token) {
+    setStatus('s-ok', `${owner}/${repo}`);
+    document.getElementById('load-btn').disabled = false;
+  }
+}
+
+// ════════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════════
+function saveSettings() {
+  const owner = document.getElementById('gh-owner').value.trim();
+  const repo  = document.getElementById('gh-repo').value.trim();
+  const token = document.getElementById('gh-token').value.trim();
+  if (!owner||!repo||!token) { showAlert('','',''); document.getElementById('conn-result').style.color='var(--red)'; document.getElementById('conn-result').textContent='Remplis tous les champs'; return; }
+  localStorage.setItem('gh_owner', owner);
+  localStorage.setItem('gh_repo',  repo);
+  localStorage.setItem('gh_token', token);
+  document.getElementById('conn-result').style.color='var(--green)';
+  document.getElementById('conn-result').textContent='✓ Enregistré';
+  setStatus('s-ok', `${owner}/${repo}`);
+  document.getElementById('load-btn').disabled = false;
+}
+
+async function testConnection() {
+  const {owner,repo,token} = getGhConfig();
+  if (!owner||!repo||!token) { document.getElementById('conn-result').style.color='var(--red)'; document.getElementById('conn-result').textContent='Config incomplète'; return; }
+  document.getElementById('conn-result').textContent = '🔄 Test…';
+  try {
+    const res = await ghFetch(`https://api.github.com/repos/${owner}/${repo}`, token);
+    const data = await res.json();
+    if (data.full_name) {
+      document.getElementById('conn-result').style.color='var(--green)';
+      document.getElementById('conn-result').textContent=`✓ Connecté — ${data.full_name}`;
+    } else {
+      throw new Error(data.message || 'Erreur');
+    }
+  } catch(e) {
+    document.getElementById('conn-result').style.color='var(--red)';
+    document.getElementById('conn-result').textContent='❌ ' + e.message;
+  }
+}
+
+function getGhConfig() {
+  return {
+    owner: localStorage.getItem('gh_owner') || '',
+    repo:  localStorage.getItem('gh_repo')  || '',
+    token: localStorage.getItem('gh_token') || '',
+  };
+}
+
+// ════════════════════════════════════
+//  GITHUB API
+// ════════════════════════════════════
+function ghFetch(url, token, options={}) {
+  return fetch(url, {
+    ...options,
+    headers: {
+      'Authorization': `token ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      ...(options.headers||{})
+    }
+  });
+}
+
+async function loadFromGitHub() {
+  const {owner,repo,token} = getGhConfig();
+  if (!token) { showAlert('alert-but','Configure d\'abord GitHub dans l\'onglet Config','a-error'); return; }
+  setStatus('s-pub','Chargement…');
+  try {
+    const res  = await ghFetch(`https://api.github.com/repos/${owner}/${repo}/contents/index.html`, token);
+    const data = await res.json();
+    if (!data.content) throw new Error(data.message || 'Fichier introuvable');
+    fileContent = decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
+    fileSha     = data.sha;
+    buteurs     = parseSection(fileContent,'buteurs');
+    passeurs    = parseSection(fileContent,'passeurs');
+    renderBut(); renderPass();
+    setStatus('s-ok', `${owner}/${repo} ✓`);
+    modified = false;
+    document.getElementById('pub-btn').disabled = true;
+    showAlert('alert-but',`✓ Chargé — ${buteurs.length} buteurs, ${passeurs.length} passeurs`,'a-info');
+  } catch(e) {
+    setStatus('s-none','Erreur');
+    showAlert('alert-but','Erreur : '+e.message,'a-error');
+  }
+}
+
+async function publishToGitHub() {
+  if (!modified || !fileContent) return;
+  const {owner,repo,token} = getGhConfig();
+  if (!token) { showAlert('alert-but','Configure GitHub d\'abord','a-error'); return; }
+
+  showOverlay('Publication en cours…','Mise à jour de index.html sur GitHub…');
+  try {
+    const newContent = rebuildHTML();
+    const encoded    = btoa(unescape(encodeURIComponent(newContent)));
+    const res = await ghFetch(
+      `https://api.github.com/repos/${owner}/${repo}/contents/index.html`,
+      token,
+      {
+        method:'PUT',
+        body: JSON.stringify({
+          message: `[Admin] Mise à jour stats — ${new Date().toLocaleDateString('fr-FR')}`,
+          content: encoded,
+          sha: fileSha
+        })
+      }
+    );
+    const data = await res.json();
+    if (data.content) {
+      fileSha      = data.content.sha;
+      fileContent  = newContent;
+      modified     = false;
+      document.getElementById('pub-btn').disabled = true;
+      hideOverlay();
+      setStatus('s-ok','✅ Publié !');
+      showAlert('alert-but','✅ Publié sur GitHub ! Netlify va redéployer automatiquement (~30s)','a-success');
+    } else {
+      throw new Error(data.message || 'Erreur lors de la publication');
+    }
+  } catch(e) {
+    hideOverlay();
+    showAlert('alert-but','❌ Erreur : '+e.message,'a-error');
+  }
+}
+
+// ════════════════════════════════════
+//  PARSE HTML
+// ════════════════════════════════════
+function parseSection(html, type) {
+  const startTag = type==='buteurs'
+    ? '<!-- ===== TAB: BUTEURS ===== -->'
+    : '<!-- ===== TAB: PASSEURS ===== -->';
+  const endTag = type==='buteurs'
+    ? '</div><!-- /tab-buteurs -->'
+    : '</div><!-- /tab-passeurs -->';
+  const s = html.indexOf(startTag);
+  const e = html.indexOf(endTag);
+  if (s===-1||e===-1) return [];
+  const section = html.slice(s,e);
+  const merged  = [];
+  section.split('<div class="scorer-full-item">').slice(1).forEach(item => {
+    const nm = item.match(/class="scorer-full-name">([^<]+)<\/div>/);
+    const tm = item.match(/class="scorer-full-team">([^<]+)<\/div>/);
+    const gm = item.match(/class="scorer-full-goals">(\d+)\s*<span>/);
+    if (nm&&tm&&gm) {
+      const p={name:nm[1].trim(),team:tm[1].trim(),goals:parseInt(gm[1])};
+      const ex=merged.find(m=>m.name===p.name&&m.team===p.team);
+      if (ex) ex.goals=Math.max(ex.goals,p.goals); else merged.push(p);
+    }
+  });
+  return merged.sort((a,b)=>b.goals-a.goals);
+}
+
+// ════════════════════════════════════
+//  RENDER TABLES
+// ════════════════════════════════════
+function getLogo(t){return(TEAMS.find(x=>x.name===t)||{logo:'Blacksquad.webp'}).logo;}
+
+function renderBut() {
+  const sorted=[...buteurs].sort((a,b)=>b.goals-a.goals);
+  let rank=1;
+  document.getElementById('but-tbody').innerHTML=sorted.map((p,i)=>{
+    if(i>0&&sorted[i].goals<sorted[i-1].goals)rank=i+1;
+    return pRow(p,i,rank,'but','but');
+  }).join('');
+}
+function renderPass() {
+  const sorted=[...passeurs].sort((a,b)=>b.goals-a.goals);
+  let rank=1;
+  document.getElementById('pass-tbody').innerHTML=sorted.map((p,i)=>{
+    if(i>0&&sorted[i].goals<sorted[i-1].goals)rank=i+1;
+    return pRow(p,i,rank,'pass','passe');
+  }).join('');
+}
+function pRow(p,idx,rank,pfx,unit) {
+  const logo=getLogo(p.team);
+  const label=p.goals>1?unit+'s':unit;
+  return `<tr>
+    <td><span class="rank-num">${rank}</span></td>
+    <td><img src="assets/${logo}" class="team-logo-sm" onerror="this.style.display='none'"><strong>${esc(p.name)}</strong></td>
+    <td style="color:var(--muted)">${esc(p.team)}</td>
+    <td><span class="val-big">${p.goals}</span> <span class="val-muted">${label.toUpperCase()}</span></td>
+    <td><div style="display:flex;gap:4px;">
+      <button class="btn btn-outline btn-sm" onclick="delta('${pfx}',${idx},-1)">−</button>
+      <button class="btn btn-outline btn-sm" onclick="delta('${pfx}',${idx},+1)">+</button>
+      <button class="btn btn-red btn-sm"     onclick="del('${pfx}',${idx})">✕</button>
+    </div></td>
+  </tr>`;
+}
+
+// ════════════════════════════════════
+//  CRUD ACTIONS
+// ════════════════════════════════════
+function getArr(pfx){return pfx==='but'?buteurs:passeurs;}
+function getSorted(pfx){return[...getArr(pfx)].sort((a,b)=>b.goals-a.goals);}
+
+function delta(pfx,si,d){
+  const arr=getArr(pfx),sorted=getSorted(pfx),p=sorted[si];
+  const ri=arr.findIndex(x=>x.name===p.name&&x.team===p.team);
+  if(ri===-1)return;
+  arr[ri].goals=Math.max(0,arr[ri].goals+d);
+  if(arr[ri].goals===0)arr.splice(ri,1);
+  markMod(); pfx==='but'?renderBut():renderPass();
+}
+function del(pfx,si){
+  const arr=getArr(pfx),sorted=getSorted(pfx),p=sorted[si];
+  if(!confirm(`Supprimer ${p.name} ?`))return;
+  const ri=arr.findIndex(x=>x.name===p.name&&x.team===p.team);
+  if(ri!==-1)arr.splice(ri,1);
+  markMod(); pfx==='but'?renderBut():renderPass();
+}
+function pushPlayer(arr,name,team,goals){
+  const ex=arr.findIndex(p=>p.name.toLowerCase()===name.toLowerCase()&&p.team===team);
+  if(ex!==-1)arr[ex].goals+=goals; else arr.push({name,team,goals});
+}
+function addButeur(){
+  const name=document.getElementById('ab-name').value.trim();
+  const team=document.getElementById('ab-team').value;
+  const goals=parseInt(document.getElementById('ab-goals').value)||0;
+  if(!name){showAlert('alert-but','Entrez le nom du joueur','a-error');return;}
+  if(goals<1){showAlert('alert-but','Nombre de buts invalide','a-error');return;}
+  pushPlayer(buteurs,name,team,goals);
+  document.getElementById('ab-name').value='';
+  document.getElementById('ab-goals').value='1';
+  toggleForm('form-but'); markMod(); renderBut();
+  showAlert('alert-but',`✓ ${name} ajouté / mis à jour`,'a-success');
+}
+function addPasseur(){
+  const name=document.getElementById('ap-name').value.trim();
+  const team=document.getElementById('ap-team').value;
+  const goals=parseInt(document.getElementById('ap-goals').value)||0;
+  if(!name){showAlert('alert-pass','Entrez le nom du joueur','a-error');return;}
+  if(goals<1){showAlert('alert-pass','Nombre de passes invalide','a-error');return;}
+  pushPlayer(passeurs,name,team,goals);
+  document.getElementById('ap-name').value='';
+  document.getElementById('ap-goals').value='1';
+  toggleForm('form-pass'); markMod(); renderPass();
+  showAlert('alert-pass',`✓ ${name} ajouté / mis à jour`,'a-success');
+}
+
+// ════════════════════════════════════
+//  MATCH ROWS
+// ════════════════════════════════════
+function addRow(type){
+  const id=`${type}-${++rowId}`;
+  const div=document.createElement('div');
+  div.className='fg-4'; div.id=id;
+  const label=type==='scorer'?'Buteur':'Passeur';
+  div.innerHTML=`
+    <div><label>${label}</label><input class="${type}-name" placeholder="Pseudo"></div>
+    <div><label>Équipe</label><select class="${type}-team">${TEAMS.map(t=>`<option value="${t.name}">${t.name}</option>`).join('')}</select></div>
+    <div><label>Nb</label><input type="number" min="1" value="1" class="${type}-count"></div>
+    <div><button class="btn btn-red btn-sm" onclick="document.getElementById('${id}').remove()" style="margin-top:24px;">✕</button></div>
+  `;
+  document.getElementById(type==='scorer'?'scorer-rows':'assist-rows').appendChild(div);
+}
+function applyMatch(){
+  const applied=[];
+  document.querySelectorAll('#scorer-rows .fg-4').forEach(row=>{
+    const name=row.querySelector('.scorer-name').value.trim();
+    const team=row.querySelector('.scorer-team').value;
+    const count=parseInt(row.querySelector('.scorer-count').value)||1;
+    if(!name)return;
+    pushPlayer(buteurs,name,team,count);
+    applied.push(`${name} +${count} but${count>1?'s':''}`);
+  });
+  document.querySelectorAll('#assist-rows .fg-4').forEach(row=>{
+    const name=row.querySelector('.assist-name').value.trim();
+    const team=row.querySelector('.assist-team').value;
+    const count=parseInt(row.querySelector('.assist-count').value)||1;
+    if(!name)return;
+    pushPlayer(passeurs,name,team,count);
+    applied.push(`${name} +${count} passe${count>1?'s':''}`);
+  });
+  if(!applied.length){showAlert('alert-match','Aucune donnée saisie','a-error');return;}
+  markMod(); renderBut(); renderPass();
+  showAlert('alert-match','✓ '+applied.join(' · '),'a-success');
+  document.getElementById('scorer-rows').innerHTML='';
+  document.getElementById('assist-rows').innerHTML='';
+  rowId=0; addRow('scorer'); addRow('assist');
+}
+
+// ════════════════════════════════════
+//  REBUILD HTML
+// ════════════════════════════════════
+function genEntries(arr,type){
+  const sorted=[...arr].sort((a,b)=>b.goals-a.goals);
+  const max=sorted[0]?.goals||1;
+  const labels=type==='buteurs'?['BUT','BUTS']:['PASSE','PASSES'];
+  let html='',rankStart=1;
+  sorted.forEach((p,i)=>{
+    if(i>0&&sorted[i].goals<sorted[i-1].goals)rankStart=i+1;
+    const pct=Math.round((p.goals/max)*100);
+    const label=p.goals>1?labels[1]:labels[0];
+    const logo=getLogo(p.team);
+    html+=`        <div class="scorer-full-item">
+          <div class="scorer-full-rank " style="color:var(--muted);font-size:1.5rem;width:40px;">${rankStart}</div>
+          <div class="scorer-full-avatar avatar-logo"><img src="assets/${logo}" alt="${esc(p.team)}"></div>
+          <div class="scorer-full-info">
+            <div class="scorer-full-name">${esc(p.name)}</div>
+            <div class="scorer-full-team">${esc(p.team)}</div>
+          </div>
+          <div class="scorer-full-bar-wrap"><div class="scorer-full-bar-bg"><div class="scorer-full-bar-fill" style="width:${pct}%"></div></div></div>
+          <div class="scorer-full-goals">${p.goals} <span>${label}</span></div>
+        </div>\n`;
+  });
+  return html;
+}
+
+function replaceSection(html,startTag,endTag,newContent){
+  const s=html.indexOf(startTag);
+  const e=html.indexOf(endTag);
+  if(s===-1||e===-1)return html;
+  return html.slice(0,s)+newContent+endTag+html.slice(e+endTag.length);
+}
+
+function rebuildHTML(){
+  let html=fileContent;
+
+  const butSection=`    <!-- ===== TAB: BUTEURS ===== -->
+        <div id="tab-buteurs" class="tab-content" role="tabpanel">
+      <div class="section-title">
+        <span class="icon">👟</span> Classement des Buteurs <span class="line"></span>
+      </div>
+      <div class="scorers-full">
+${genEntries(buteurs,'buteurs')}
+      </div>
+    `;
+  html=replaceSection(html,'<!-- ===== TAB: BUTEURS ===== -->','</div><!-- /tab-buteurs -->',butSection);
+
+  const passSection=`            <!-- ===== TAB: PASSEURS ===== -->
+    <div id="tab-passeurs" class="tab-content" role="tabpanel">
+      <div class="section-title">
+        <span class="icon">🎯</span> Meilleurs Passeurs <span class="line"></span>
+      </div>
+      <div class="scorers-full">
+${genEntries(passeurs,'passeurs')}
+      </div>
+    `;
+  html=replaceSection(html,'<!-- ===== TAB: PASSEURS ===== -->','</div><!-- /tab-passeurs -->',passSection);
+
+  return html;
+}
+
+// ════════════════════════════════════
+//  UI HELPERS
+// ════════════════════════════════════
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+function toggleForm(id){
+  const el=document.getElementById(id);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+function markMod(){
+  modified=true;
+  document.getElementById('pub-btn').disabled=false;
+  setStatus('s-mod','⚠ Modifications en attente');
+}
+function setStatus(cls,txt){
+  const b=document.getElementById('status-badge');
+  b.className='status-badge '+cls; b.textContent=txt;
+}
+function showAlert(id,msg,cls){
+  if(!id)return;
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML=`<div class="alert ${cls}">${msg}</div>`;
+  setTimeout(()=>el.innerHTML='',6000);
+}
+function showOverlay(title,msg){
+  document.getElementById('pub-title').textContent=title;
+  document.getElementById('pub-msg').textContent=msg;
+  document.getElementById('publish-overlay').classList.add('show');
+}
+function hideOverlay(){
+  document.getElementById('publish-overlay').classList.remove('show');
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+</body>
+</html>
