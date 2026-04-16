@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(open /Users/toure/FC26_championat/index.html)",
+      "Bash(ls -lh /Users/toure/FC26_championat/assets/*.webp)",
+      "Read(//Users/toure/FC26_championat/assets/**)",
+      "Bash(python3:*)",
+      "Bash(sips -Z 150 kuluna_yi.jpg --out kuluna_yi_resized.jpg)",
+      "Bash(cwebp -q 85 kuluna_yi_resized.jpg -o kuluna_yi.webp)",
+      "Bash(rm kuluna_yi_resized.jpg)",
+      "Bash(sips -Z 150 ASC_Galgui.png --out asc_galgui_r.png)",
+      "Bash(cwebp -q 85 asc_galgui_r.png -o ASC_Galgui.webp)",
+      "Bash(rm asc_galgui_r.png)",
+      "Bash(sips -Z 150 birago_cp.png --out birago_cp_r.png)",
+      "Bash(cwebp -q 85 birago_cp_r.png -o birago_cp.webp)",
+      "Bash(rm birago_cp_r.png)",
+      "Bash(node -e ':*)",
+      "Bash(ls -lt /Users/toure/FC26_championat/assets/*.png /Users/toure/FC26_championat/assets/*.jpg /Users/toure/FC26_championat/assets/*.webp /Users/toure/FC26_championat/assets/*.jpeg)"
+    ]
+  }
+}
