@@ -874,6 +874,29 @@
     }
     .footer strong { color: var(--red); }
 
+    /* ===== HIDDEN ADMIN BUTTON ===== */
+    .admin-entry {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: var(--muted);
+      text-decoration: none;
+      opacity: 0.12;
+      border-radius: 50%;
+      transition: opacity 0.3s, background 0.3s;
+      z-index: 500;
+    }
+    .admin-entry:hover {
+      opacity: 0.7;
+      background: rgba(255,255,255,0.06);
+    }
+
     /* ===== SITE HEADER (replace hero) ===== */
     .site-header {
       position: sticky;
@@ -3372,6 +3395,9 @@
     <strong>eLiga SN</strong> · Pro Club · Saison 1 · 16 Équipes · 30 Journées
     &nbsp;·&nbsp; Mis à jour le 5 avril 2026
   </footer>
+
+  <!-- hidden admin access -->
+  <a href="admin.html" class="admin-entry" title="" tabindex="-1" aria-hidden="true">⚙</a>
 
   <!-- ==================== MATCH MODAL ==================== -->
   <div id="match-modal" class="team-modal-overlay" role="dialog" aria-modal="true" aria-label="Détails du match" onclick="if(event.target===this)closeMatchModal()">
