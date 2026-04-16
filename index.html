@@ -13,14 +13,18 @@
     :root {
       --red:        #E41E26;
       --red-dark:   #9b0d13;
-      --red-glow:   rgba(228, 30, 38, 0.6);
-      --red-faint:  rgba(228, 30, 38, 0.08);
-      --bg:         #0a0a0a;
-      --surface:    #111111;
-      --surface2:   #161616;
-      --border:     rgba(255,255,255,0.06);
-      --text:       #f0f0f0;
-      --muted:      #666;
+      --red-glow:   rgba(228, 30, 38, 0.5);
+      --red-faint:  rgba(228, 30, 38, 0.07);
+      --blue:       #3b82f6;
+      --blue-dark:  #1e3a6e;
+      --blue-faint: rgba(59, 130, 246, 0.07);
+      --bg:         #0d1526;
+      --surface:    #111f38;
+      --surface2:   #162848;
+      --surface3:   #1c3256;
+      --border:     rgba(255,255,255,0.07);
+      --text:       #e8edf5;
+      --muted:      #4e6e94;
       --gold:       #FFD700;
       --silver:     #C0C0C0;
       --bronze:     #CD7F32;
@@ -44,14 +48,14 @@
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--red-dark); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--blue-dark); border-radius: 3px; }
 
     .glass {
-      background: rgba(255,255,255,0.03);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: var(--surface);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 10px;
     }
 
     img { max-width: 100%; height: auto; display: block; }
@@ -68,8 +72,8 @@
     }
     .section-title span.line {
       flex: 1;
-      height: 2px;
-      background: linear-gradient(90deg, var(--red), transparent);
+      height: 1px;
+      background: linear-gradient(90deg, var(--blue-dark), transparent);
       min-width: 20px;
     }
     .section-title .icon { font-size: 1em; flex-shrink: 0; }
@@ -79,8 +83,9 @@
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(228,30,38,0.18) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 40% at 90% 90%, rgba(228,30,38,0.08) 0%, transparent 60%);
+        radial-gradient(ellipse 70% 50% at 0% 0%, rgba(20,50,120,0.35) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 100% 0%, rgba(20,50,120,0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 100%, rgba(228,30,38,0.06) 0%, transparent 60%);
       pointer-events: none;
       z-index: 0;
     }
@@ -261,37 +266,40 @@
       flex-wrap: nowrap;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      gap: 8px;
+      gap: 0;
       margin-bottom: 24px;
       scrollbar-width: none;
-      padding-bottom: 4px;
+      padding-bottom: 0;
+      border-bottom: 1px solid var(--border);
     }
     .nav-tabs::-webkit-scrollbar { display: none; }
 
     .nav-tab {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      padding: 10px 16px;
-      min-height: 44px;
-      border-radius: 30px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.03);
+      padding: 14px 20px;
+      min-height: 48px;
+      border-radius: 0;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: transparent;
       color: var(--muted);
       cursor: pointer;
-      transition: all 0.25s;
+      transition: all 0.2s;
       white-space: nowrap;
       flex-shrink: 0;
+      margin-bottom: -1px;
     }
 
-    .nav-tab:hover,
+    .nav-tab:hover { color: var(--text); }
     .nav-tab.active {
-      background: var(--red);
-      border-color: var(--red);
+      border-bottom-color: var(--red);
       color: #fff;
-      box-shadow: 0 0 20px var(--red-glow);
+      background: transparent;
+      box-shadow: none;
     }
 
     .tab-content {
@@ -866,13 +874,166 @@
     }
     .footer strong { color: var(--red); }
 
+    /* ===== SITE HEADER (replace hero) ===== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: rgba(13,21,38,0.94);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+    .site-header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .site-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+    .site-logo-wrap {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--red);
+      box-shadow: 0 0 12px var(--red-glow);
+      flex-shrink: 0;
+    }
+    .site-logo-img { width: 100%; height: 100%; object-fit: cover; }
+    .site-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 3px;
+      color: #fff;
+      line-height: 1;
+    }
+    .site-sub {
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .site-header-stats {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      justify-content: center;
+    }
+    .hstat { text-align: center; }
+    .hstat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      color: #fff;
+      display: block;
+      line-height: 1;
+    }
+    .hstat-label {
+      font-size: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .hstat-div { width: 1px; height: 26px; background: var(--border); flex-shrink: 0; }
+    .site-header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .live-chip {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      background: rgba(228,30,38,0.15);
+      color: var(--red);
+      border: 1px solid rgba(228,30,38,0.35);
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .live-chip::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+    .season-chip {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      background: rgba(59,130,246,0.1);
+      color: var(--blue);
+      border: 1px solid rgba(59,130,246,0.25);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* ===== TICKER RESTYLE ===== */
+    .ticker-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 7px 0;
+    }
+    .ticker-bar::before,
+    .ticker-bar::after {
+      background: var(--surface2);
+      color: var(--red);
+      font-size: 0.65rem;
+      padding: 2px 10px;
+    }
+    .ticker-item { font-size: 0.72rem; color: var(--muted); }
+    .ticker-item span { color: rgba(255,255,255,0.2); }
+
+    /* ===== CARD IMPROVEMENTS ===== */
+    .upcoming-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .upcoming-card::before {
+      background: linear-gradient(90deg, var(--blue-dark), transparent);
+      height: 1px;
+    }
+    .upcoming-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(59,130,246,0.15);
+    }
+    .scorer-full-item:hover { background: var(--blue-faint); border-color: rgba(59,130,246,0.15); transform: translateX(4px); }
+    .standings-table tbody tr:hover { background: rgba(59,130,246,0.05); transform: translateX(2px); }
+    .cal-match:hover { background: var(--blue-faint); border-color: rgba(59,130,246,0.2); }
+    .cal-match.played { border-color: rgba(34,197,94,0.15); border-left: 2px solid rgba(34,197,94,0.5); }
+    .results-journee-block { background: var(--surface); }
+
+    /* ===== SCORE BOX RESTYLE ===== */
+    .score-box {
+      background: var(--surface2);
+      border-color: var(--border);
+    }
+
+    /* ===== FORM DOTS ===== */
+    .form-dot { border-radius: 3px; }
+
     @media (min-width: 768px) {
+      .site-header-stats { display: flex; }
       .wrapper { padding: 0 24px 50px; }
-      .hero { padding: 56px 24px 48px; }
-      .hero-season { font-size: 0.82rem; letter-spacing: 4px; }
-      .hero-stats { gap: 28px; margin-top: 32px; }
-      .hero-divider { display: block; }
-      .hero-stat-label { font-size: 0.7rem; letter-spacing: 2px; }
       .nav-tabs { flex-wrap: wrap; overflow-x: visible; margin-bottom: 30px; }
       .nav-tab { font-size: 0.82rem; letter-spacing: 2px; }
       .section-title { margin-bottom: 20px; }
@@ -1042,34 +1203,30 @@
 </head>
 <body>
 
-  <!-- ==================== HERO ==================== -->
-  <header class="hero">
-    <div class="hero-season">eLiga SN · Saison 1</div>
-    <div class="hero-badge">
-      <img src="assets/logo_eLiga_Sn.webp" alt="eLiga SN" class="hero-logo" />
-    </div>
-    <h1 class="hero-title">eLiga_Sn</h1>
-    <p class="hero-subtitle">Pro Clubs · 16 Équipes · Aller–Retour</p>
-
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="hero-stat-value">16</div>
-        <div class="hero-stat-label">Équipes</div>
+  <!-- ==================== SITE HEADER ==================== -->
+  <header class="site-header">
+    <div class="site-header-inner">
+      <div class="site-brand">
+        <div class="site-logo-wrap">
+          <img src="assets/logo_eLiga_Sn.webp" alt="eLiga SN" class="site-logo-img" />
+        </div>
+        <div>
+          <div class="site-title">eLiga_Sn</div>
+          <div class="site-sub">Pro Clubs · Sénégal</div>
+        </div>
       </div>
-      <div class="hero-divider"></div>
-      <div class="hero-stat">
-        <div class="hero-stat-value">1</div>
-        <div class="hero-stat-label">Journées</div>
+      <div class="site-header-stats">
+        <div class="hstat"><span class="hstat-val">16</span><span class="hstat-label">Équipes</span></div>
+        <div class="hstat-div"></div>
+        <div class="hstat"><span class="hstat-val">2</span><span class="hstat-label">Journées</span></div>
+        <div class="hstat-div"></div>
+        <div class="hstat"><span class="hstat-val">15</span><span class="hstat-label">Matchs joués</span></div>
+        <div class="hstat-div"></div>
+        <div class="hstat"><span class="hstat-val">30</span><span class="hstat-label">Journées totales</span></div>
       </div>
-      <div class="hero-divider"></div>
-      <div class="hero-stat">
-        <div class="hero-stat-value">15</div>
-        <div class="hero-stat-label">Matchs joués</div>
-      </div>
-      <div class="hero-divider"></div>
-      <div class="hero-stat">
-        <div class="hero-stat-value">30</div>
-        <div class="hero-stat-label">Journées totales</div>
+      <div class="site-header-right">
+        <span class="live-chip">EN COURS</span>
+        <span class="season-chip">SAISON 1</span>
       </div>
     </div>
   </header>
@@ -1078,12 +1235,11 @@
   <div class="ticker-bar" aria-hidden="true">
     <div class="ticker-track">
       <span class="ticker-item">🏆 eLiga SN · Pro Club · Saison 1 · 16 Équipes · 30 Journées</span>
-      <span class="ticker-item">⚽ Asc Galgui <span>·</span> Birago CP <span>·</span> Blacksquad <span>·</span> Hood Bi <span>·</span> Inazuma Futur <span>·</span> Kuluna Yi <span>·</span> Lks Kaido <span>·</span> Pluto Sn</span>
-      <span class="ticker-item">⚽ Ghos SN <span>·</span> Senecao <span>·</span> Senegal <span>·</span> Tappp SN <span>·</span> Teranga Boyz <span>·</span> Thiapz Prime <span>·</span> Voile D'or <span>·</span> Xalatt Niakk</span>
-      <!-- duplicate for infinite loop -->
+      <span class="ticker-item">⚽ Asc Galgui <span>·</span> Birago CP <span>·</span> Blacksquad <span>·</span> Ghos SN <span>·</span> Hood Bi <span>·</span> Inazuma Futur <span>·</span> Kuluna Yi <span>·</span> LKS Kaido</span>
+      <span class="ticker-item">⚽ Pluto SN <span>·</span> Senecao <span>·</span> Senegal <span>·</span> Tappp SN <span>·</span> Teranga Boyz <span>·</span> Thiapz Prime <span>·</span> Voile D'or <span>·</span> Xalatt Niakk</span>
       <span class="ticker-item">🏆 eLiga SN · Pro Club · Saison 1 · 16 Équipes · 30 Journées</span>
-      <span class="ticker-item">⚽ Asc Galgui <span>·</span> Birago CP <span>·</span> Blacksquad <span>·</span> Hood Bi <span>·</span> Inazuma Futur <span>·</span> Kuluna Yi <span>·</span> Lks Kaido <span>·</span> Pluto Sn</span>
-      <span class="ticker-item">⚽ Ghos SN <span>·</span> Senecao <span>·</span> Senegal <span>·</span> Tappp SN <span>·</span> Teranga Boyz <span>·</span> Thiapz Prime <span>·</span> Voile D'or <span>·</span> Xalatt Niakk</span>
+      <span class="ticker-item">⚽ Asc Galgui <span>·</span> Birago CP <span>·</span> Blacksquad <span>·</span> Ghos SN <span>·</span> Hood Bi <span>·</span> Inazuma Futur <span>·</span> Kuluna Yi <span>·</span> LKS Kaido</span>
+      <span class="ticker-item">⚽ Pluto SN <span>·</span> Senecao <span>·</span> Senegal <span>·</span> Tappp SN <span>·</span> Teranga Boyz <span>·</span> Thiapz Prime <span>·</span> Voile D'or <span>·</span> Xalatt Niakk</span>
     </div>
   </div>
 
