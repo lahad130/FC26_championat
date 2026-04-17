@@ -91,15 +91,18 @@
     .fg-perf{display:grid;grid-template-columns:2fr 1fr 1fr 70px auto;gap:8px;align-items:end;margin-bottom:8px;}
 
     /* ══ TABLE ══ */
-    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px;}
-    .data-table{width:100%;border-collapse:collapse;min-width:480px;}
-    .data-table th{text-align:left;padding:9px 12px;font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;border-bottom:1px solid var(--border);white-space:nowrap;}
-    .data-table td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+    .tbl-card{padding:0;border-radius:10px;overflow:hidden;}
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;}
+    .data-table{width:100%;border-collapse:collapse;}
+    .data-table th{text-align:left;padding:10px 12px;font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface);}
+    .data-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
     .data-table tbody tr:hover td{background:rgba(59,130,246,.05);}
     .rank-num{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--muted);}
     .team-logo-sm{width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:7px;}
     .val-big{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green);}
     .val-muted{font-size:.72rem;color:var(--muted);}
+    .act-btns{display:flex;gap:3px;flex-wrap:nowrap;}
+    .act-btns .btn{padding:5px 8px;font-size:.8rem;}
 
     /* ══ ALERTS ══ */
     .alert{padding:10px 14px;border-radius:8px;font-size:.86rem;margin-bottom:12px;}
@@ -145,12 +148,12 @@
     @media(max-width:599px){
       .fg-2,.fg-3,.settings-grid{grid-template-columns:1fr;}
       .fg-4{grid-template-columns:1fr 1fr auto auto;}
-      .fg-perf{grid-template-columns:1fr 1fr;gap:8px;}
-      .fg-perf>div:nth-child(3){grid-column:span 1;}
-      .fg-perf>div:nth-child(4){grid-column:span 1;}
-      .fg-perf>div:nth-child(5){grid-column:span 2;display:flex;justify-content:flex-end;}
       .card{padding:14px;}
       .totw-slot{min-width:70px;}
+      /* Cacher colonnes non-essentielles dans les tableaux */
+      .col-team,.col-poste{display:none;}
+      /* Réduire padding cellules */
+      .data-table th,.data-table td{padding:9px 8px;}
     }
   </style>
 </head>
@@ -233,10 +236,10 @@
       </div>
     </div>
     <div id="alert-but"></div>
-    <div class="card" style="padding:0;overflow:hidden;">
+    <div class="card tbl-card">
       <div class="table-wrap">
         <table class="data-table">
-          <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Buts</th><th>Actions</th></tr></thead>
+          <thead><tr><th>#</th><th>Joueur</th><th class="col-team">Équipe</th><th>Buts</th><th>Actions</th></tr></thead>
           <tbody id="but-tbody"></tbody>
         </table>
       </div>
@@ -262,10 +265,10 @@
       </div>
     </div>
     <div id="alert-pass"></div>
-    <div class="card" style="padding:0;overflow:hidden;">
+    <div class="card tbl-card">
       <div class="table-wrap">
         <table class="data-table">
-          <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Passes</th><th>Actions</th></tr></thead>
+          <thead><tr><th>#</th><th>Joueur</th><th class="col-team">Équipe</th><th>Passes</th><th>Actions</th></tr></thead>
           <tbody id="pass-tbody"></tbody>
         </table>
       </div>
@@ -336,10 +339,10 @@
     <div id="alert-perf"></div>
 
     <!-- Players table -->
-    <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px;">
+    <div class="card tbl-card" style="margin-bottom:14px;">
       <div class="table-wrap">
         <table class="data-table">
-          <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Poste</th><th>Note</th><th></th></tr></thead>
+          <thead><tr><th>#</th><th>Joueur</th><th class="col-team">Équipe</th><th class="col-poste">Poste</th><th>Note</th><th>Act.</th></tr></thead>
           <tbody id="perf-tbody"></tbody>
         </table>
       </div>
@@ -726,9 +729,9 @@ function pRow(p,idx,rank,pfx,unit) {
   return `<tr>
     <td><span class="rank-num">${rank}</span></td>
     <td><img src="assets/${logo}" class="team-logo-sm" onerror="this.style.display='none'"><strong>${esc(p.name)}</strong></td>
-    <td style="color:var(--muted)">${esc(p.team)}</td>
+    <td class="col-team" style="color:var(--muted)">${esc(p.team)}</td>
     <td><span class="val-big">${p.goals}</span> <span class="val-muted">${label.toUpperCase()}</span></td>
-    <td><div style="display:flex;gap:4px;">
+    <td><div class="act-btns">
       <button class="btn btn-outline btn-sm" onclick="delta('${pfx}',${idx},-1)">−</button>
       <button class="btn btn-outline btn-sm" onclick="delta('${pfx}',${idx},+1)">+</button>
       <button class="btn btn-red btn-sm"     onclick="del('${pfx}',${idx})">✕</button>
@@ -755,8 +758,8 @@ function renderPerf() {
     return `<tr style="${excl?'opacity:0.38':''}">
       <td><span class="rank-num">${excl?'—':rankDisplay}</span></td>
       <td><img src="assets/${getLogo(p.team)}" class="team-logo-sm" onerror="this.style.display='none'"><strong>${esc(p.name)}</strong></td>
-      <td style="color:var(--muted)">${esc(p.team)}</td>
-      <td style="color:var(--muted);font-size:.8rem;">${esc(p.position||'—')}</td>
+      <td class="col-team" style="color:var(--muted)">${esc(p.team)}</td>
+      <td class="col-poste" style="color:var(--muted);font-size:.8rem;">${esc(p.position||'—')}</td>
       <td><span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:${nc};">${p.note}</span></td>
       <td><button class="btn btn-red btn-sm" onclick="delPerf(${p._i})">✕</button></td>
     </tr>`;
