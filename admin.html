@@ -308,9 +308,10 @@
   <div id="tab-performances" class="tab-pane">
     <div class="sec-header">
       <div class="sec-title">⭐ Performances</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <label style="margin:0;color:var(--muted);">Journée</label>
-        <input id="perf-journee" type="number" min="1" max="30" value="2" style="width:60px;">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <label style="margin:0;color:var(--muted);font-size:.7rem;">J.</label>
+        <input id="perf-journee" type="number" min="1" max="30" value="2" style="width:54px;">
+        <button class="btn btn-outline btn-sm" onclick="nouvelleJournee()" title="Effacer tous les joueurs pour commencer une nouvelle journée">🗑 Vider</button>
         <button class="btn btn-gold btn-sm" onclick="toggleForm('form-perf')">+ Joueur</button>
       </div>
     </div>
@@ -828,6 +829,16 @@ function addPasseur(){
   document.getElementById('ap-goals').value='1';
   toggleForm('form-pass'); markMod(); renderPass();
   showAlert('alert-pass',`✓ ${name} ajouté / mis à jour`,'a-success');
+}
+
+function nouvelleJournee() {
+  const j = document.getElementById('perf-journee').value || '?';
+  if (!confirm(`Effacer tous les joueurs pour démarrer la Journée ${j} ?\n\nLes données J précédente seront remplacées à la publication.`)) return;
+  performances = [];
+  totwSlots = {AG:null,BU:null,AD:null,MG:null,MC:null,MD:null,DG:null,DCG:null,DCD:null,DD:null,G:null};
+  renderPerf();
+  markMod();
+  showAlert('alert-perf', `✓ Prêt pour la Journée ${j} — liste vide`, 'a-info');
 }
 
 function addPerf() {
