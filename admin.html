@@ -1350,10 +1350,10 @@ ${genEntries(passeurs,'passeurs')}
     `<!-- ===== RÉSULTATS-AUTO ===== -->${genResultsAuto()}<!-- /RÉSULTATS-AUTO -->`
   );
 
-  // JSON des matchs
+  // JSON des matchs (dans le script tag)
   html = html.replace(
-    /<!-- ===== MATCHES-JSON ===== -->[\s\S]*?<!-- \/MATCHES-JSON -->/,
-    `<!-- ===== MATCHES-JSON ===== -->${JSON.stringify(matchResults)}<!-- /MATCHES-JSON -->`
+    /(<script type="application\/json" id="matches-data">)<!-- ===== MATCHES-JSON ===== -->[\s\S]*?<!-- \/MATCHES-JSON -->(<\/script>)/,
+    `$1<!-- ===== MATCHES-JSON ===== -->${JSON.stringify(matchResults)}<!-- /MATCHES-JSON -->$2`
   );
 
   return html;
