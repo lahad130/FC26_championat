@@ -919,7 +919,7 @@ function applyMatch(){
 }
 
 function updateTeamStats(name,bp,bc,result){
-  let t = classement.find(c=>c.name===name);
+  let t = classement.find(c=>c.name.toLowerCase()===name.toLowerCase());
   if(!t){ t={name,pj:0,v:0,n:0,d:0,bp:0,bc:0,forme:[]}; classement.push(t); }
   t.pj++;
   if(result==='V') t.v++;
