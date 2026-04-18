@@ -213,6 +213,7 @@
     <button class="nav-tab active" data-tab="buteurs"  onclick="switchTab('buteurs',this)">⚽ Buteurs</button>
     <button class="nav-tab"        data-tab="passeurs" onclick="switchTab('passeurs',this)">🎯 Passeurs</button>
     <button class="nav-tab"        data-tab="match"    onclick="switchTab('match',this)">📋 Match</button>
+    <button class="nav-tab"        data-tab="classement" onclick="switchTab('classement',this)">📊 Classement</button>
     <button class="nav-tab"        data-tab="performances" onclick="switchTab('performances',this)">⭐ Performances</button>
     <button class="nav-tab"        data-tab="settings" onclick="switchTab('settings',this)">⚙ Config</button>
   </div>
@@ -292,6 +293,28 @@
     </div>
     <button class="btn btn-gold" style="margin-top:4px;" onclick="applyMatch()">✓ Enregistrer le score</button>
     <div id="alert-match" style="margin-top:12px;"></div>
+  </div>
+
+  <!-- ══ CLASSEMENT ══ -->
+  <div id="tab-classement" class="tab-pane">
+    <div class="sec-header">
+      <div class="sec-title">📊 Classement</div>
+      <span style="font-size:.8rem;color:var(--muted);">Mis à jour via l'onglet Match → Publier pour envoyer sur le site</span>
+    </div>
+    <div id="class-table-wrap" class="tbl-card card" style="margin-bottom:16px;">
+      <div class="table-wrap">
+        <table class="data-table" id="class-admin-table">
+          <thead><tr>
+            <th>#</th><th style="text-align:left">Équipe</th>
+            <th>PJ</th><th>V</th><th>N</th><th>D</th>
+            <th>BP</th><th>BC</th><th>+/-</th><th>Pts</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="class-admin-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="alert-class" style="margin-top:12px;"></div>
   </div>
 
   <!-- ══ PERFORMANCES ══ -->
@@ -451,6 +474,7 @@ let fileSha     = '';
 let buteurs     = [];
 let passeurs    = [];
 let performances = [];
+let classement  = [];
 let totwSlots   = {AG:null,BU:null,AD:null,MG:null,MC:null,MD:null,DG:null,DCG:null,DCD:null,DD:null,G:null};
 let modified    = false;
 let rowId       = 0;
@@ -585,14 +609,15 @@ async function loadFromGitHub() {
     buteurs      = parseSection(fileContent,'buteurs');
     passeurs     = parseSection(fileContent,'passeurs');
     performances = parsePerformances(fileContent);
+    classement   = parseClassement(fileContent);
     const jj = parseJourneeNum(fileContent);
     if (jj) document.getElementById('perf-journee').value = jj;
     totwSlots = {AG:null,BU:null,AD:null,MG:null,MC:null,MD:null,DG:null,DCG:null,DCD:null,DD:null,G:null};
-    renderBut(); renderPass(); renderPerf();
+    renderBut(); renderPass(); renderPerf(); renderClassement();
     setStatus('s-ok', `${owner}/${repo} ✓`);
     modified = false;
     document.getElementById('pub-btn').disabled = true;
-    showAlert('alert-but',`✓ Chargé — ${buteurs.length} buteurs, ${passeurs.length} passeurs, ${performances.length} perfs`,'a-info');
+    showAlert('alert-but',`✓ Chargé — ${buteurs.length} buteurs, ${passeurs.length} passeurs, ${performances.length} perfs, ${classement.length} équipes`,'a-info');
   } catch(e) {
     setStatus('s-none','Erreur');
     showAlert('alert-but','Erreur : '+e.message,'a-error');
@@ -881,8 +906,118 @@ function applyMatch(){
   const s1 = parseInt(document.getElementById('m-score1').value)||0;
   const s2 = parseInt(document.getElementById('m-score2').value)||0;
   if(t1===t2){showAlert('alert-match','Les deux équipes doivent être différentes','a-error');return;}
+  if(!classement.length){showAlert('alert-match','Charge d\'abord le fichier (🔄)','a-error');return;}
+
+  const r1 = s1>s2?'V':s1<s2?'D':'N';
+  const r2 = s2>s1?'V':s2<s1?'D':'N';
+  updateTeamStats(t1,s1,s2,r1);
+  updateTeamStats(t2,s2,s1,r2);
+  sortClassement();
+  renderClassement();
   markMod();
-  showAlert('alert-match',`✓ ${t1} ${s1}–${s2} ${t2} enregistré (J${j})`,'a-success');
+  showAlert('alert-match',`✓ ${t1} ${s1}–${s2} ${t2} (J${j}) — Classement mis à jour`,'a-success');
+}
+
+function updateTeamStats(name,bp,bc,result){
+  let t = classement.find(c=>c.name===name);
+  if(!t){ t={name,pj:0,v:0,n:0,d:0,bp:0,bc:0,forme:[]}; classement.push(t); }
+  t.pj++;
+  if(result==='V') t.v++;
+  else if(result==='N') t.n++;
+  else t.d++;
+  t.bp+=bp; t.bc+=bc;
+  t.forme.unshift(result);
+  if(t.forme.length>5) t.forme.length=5;
+}
+
+function pts(t){ return t.v*3+t.n; }
+function diff(t){ return t.bp-t.bc; }
+
+function sortClassement(){
+  classement.sort((a,b)=>
+    pts(b)-pts(a) || diff(b)-diff(a) || b.bp-a.bp
+  );
+}
+
+// ════════════════════════════════════
+//  CLASSEMENT PARSE + RENDER
+// ════════════════════════════════════
+function parseClassement(html){
+  const result=[];
+  const tbodyMatch=html.match(/<table class="standings-table">[\s\S]*?<tbody>([\s\S]*?)<\/tbody>/);
+  if(!tbodyMatch) return [];
+  const rowRegex=/<tr[^>]*>([\s\S]*?)<\/tr>/g;
+  let m;
+  while((m=rowRegex.exec(tbodyMatch[1]))!==null){
+    const row=m[1];
+    const nameM=row.match(/class="team-name">([^<]+)<\/span>/);
+    if(!nameM) continue;
+    const name=nameM[1].trim();
+    const nums=[...row.matchAll(/<td[^>]*?>(\d+)<\/td>/g)].map(x=>parseInt(x[1]));
+    // nums: PJ,V,N,D,BP,BC (first 6 plain numeric cells)
+    const formeM=[...row.matchAll(/class="form-([wld])"/g)].map(x=>x[1]==='w'?'V':x[1]==='l'?'D':'N');
+    if(nums.length>=6){
+      result.push({name,pj:nums[0],v:nums[1],n:nums[2],d:nums[3],bp:nums[4],bc:nums[5],forme:formeM});
+    }
+  }
+  return result;
+}
+
+function renderClassement(){
+  const tbody=document.getElementById('class-admin-tbody');
+  if(!tbody) return;
+  if(!classement.length){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">Charge le fichier d\'abord (🔄)</td></tr>';return;}
+  tbody.innerHTML=classement.map((t,i)=>{
+    const p=pts(t), d=diff(t);
+    const diffStr=d>0?`+${d}`:String(d);
+    const diffCls=d>0?'style="color:var(--green)"':d<0?'style="color:var(--red)"':'';
+    const medal=i===0?'<span style="color:var(--gold);font-weight:700">1</span>':
+                i===1?'<span style="color:var(--silver)">2</span>':
+                i===2?'<span style="color:var(--bronze)">3</span>':
+                i>=13?`<span style="color:var(--red)">${i+1}</span>`:`${i+1}`;
+    const formeHtml=t.forme.map(f=>
+      `<span style="display:inline-block;width:18px;height:18px;border-radius:3px;font-size:.65rem;font-weight:700;line-height:18px;text-align:center;margin:1px;background:${f==='V'?'#22c55e':f==='D'?'#E41E26':'#f59e0b'}">${f}</span>`
+    ).join('');
+    const rowStyle=i>=13?'style="background:rgba(228,30,38,0.04)"':'';
+    return `<tr ${rowStyle}>
+      <td>${medal}</td>
+      <td style="text-align:left">${esc(t.name)}</td>
+      <td>${t.pj}</td><td>${t.v}</td><td>${t.n}</td><td>${t.d}</td>
+      <td>${t.bp}</td><td>${t.bc}</td>
+      <td ${diffCls}>${diffStr}</td>
+      <td><strong>${p}</strong></td>
+      <td><div style="display:flex;gap:2px;justify-content:center">${formeHtml}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function genClassementRows(){
+  return classement.map((t,i)=>{
+    const p=pts(t), d=diff(t);
+    const diffStr=d>0?`+${d}`:String(d);
+    const diffCls=d>0?'diff-pos':'diff-neg';
+    const teamObj=TEAMS.find(x=>x.name.toLowerCase()===t.name.toLowerCase())||{logo:'default.webp'};
+    const logo=teamObj.logo;
+    const posMedal=i===0?`<span class="pos-medal gold">1</span>`:
+                   i===1?`<span class="pos-medal silver">2</span>`:
+                   i===2?`<span class="pos-medal bronze">3</span>`:
+                   i>=13?`<span style="color:var(--red)">${i+1}</span>`:`<span style="color:var(--muted)">${i+1}</span>`;
+    const posStyle=i>=13?` style="color:var(--red)"`:'';
+    const rowClass=i>=13?' class="relegation-row"':'';
+    const ptStyle=i>=13?' style="color:var(--red)"':'';
+    const formeHtml=t.forme.map(f=>
+      `<span class="form-${f==='V'?'w':f==='D'?'l':'d'}">${f}</span>`
+    ).join('');
+    return `
+                  <tr${rowClass}>
+                    <td class="pos-cell"${posStyle}>${posMedal}</td>
+                    <td><div class="team-cell"><div class="team-avatar avatar-logo"><img src="assets/${logo}" alt="${esc(t.name)}" loading="lazy"></div><span class="team-name">${esc(t.name)}</span></div></td>
+                    <td>${t.pj}</td><td>${t.v}</td><td>${t.n}</td><td>${t.d}</td><td>${t.bp}</td><td>${t.bc}</td>
+                    <td class="${diffCls}">${diffStr}</td>
+                    <td><div class="form-cell">${formeHtml}</div></td>
+                    <td class="pts-cell"${ptStyle}>${p}</td>
+                  </tr>`;
+  }).join('\n');
 }
 
 // ════════════════════════════════════
@@ -1153,6 +1288,14 @@ ${genEntries(passeurs,'passeurs')}
 
   if (performances.length > 0) {
     html=replaceSection(html,'<!-- ===== TAB: PERFORMANCE ===== -->','</div><!-- /tab-performance -->',genPerfSection());
+  }
+
+  if (classement.length > 0) {
+    const rows = genClassementRows();
+    html = html.replace(
+      /(<table class="standings-table">[\s\S]*?<tbody>)([\s\S]*?)(<\/tbody>)/,
+      `$1\n${rows}\n                $3`
+    );
   }
 
   return html;
