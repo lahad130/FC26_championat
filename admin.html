@@ -953,8 +953,8 @@ function parseClassement(html){
     const nameM=row.match(/class="team-name">([^<]+)<\/span>/);
     if(!nameM) continue;
     const name=nameM[1].trim();
-    const nums=[...row.matchAll(/<td[^>]*?>(\d+)<\/td>/g)].map(x=>parseInt(x[1]));
-    // nums: PJ,V,N,D,BP,BC (first 6 plain numeric cells)
+    const nums=[...row.matchAll(/<td>(\d+)<\/td>/g)].map(x=>parseInt(x[1]));
+    // nums: PJ,V,N,D,BP,BC — plain <td> only, skips pos-cell/pts-cell which have class attrs
     const formeM=[...row.matchAll(/class="form-([wld])"/g)].map(x=>x[1]==='w'?'V':x[1]==='l'?'D':'N');
     if(nums.length>=6){
       result.push({name,pj:nums[0],v:nums[1],n:nums[2],d:nums[3],bp:nums[4],bc:nums[5],forme:formeM});
