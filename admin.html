@@ -723,7 +723,7 @@ function parseJourneeNum(html) {
 // ════════════════════════════════════
 //  RENDER TABLES
 // ════════════════════════════════════
-function getLogo(t){return(TEAMS.find(x=>x.name===t)||{logo:'Blacksquad.webp'}).logo;}
+function getLogo(t){return(TEAMS.find(x=>x.name.toLowerCase()===(t||'').toLowerCase())||{logo:'Blacksquad.webp'}).logo;}
 
 function renderBut() {
   const sorted=[...buteurs].sort((a,b)=>b.goals-a.goals);
