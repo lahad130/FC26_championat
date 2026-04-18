@@ -475,6 +475,7 @@ let buteurs     = [];
 let passeurs    = [];
 let performances = [];
 let classement  = [];
+let matchResults = [];
 let totwSlots   = {AG:null,BU:null,AD:null,MG:null,MC:null,MD:null,DG:null,DCG:null,DCD:null,DD:null,G:null};
 let modified    = false;
 let rowId       = 0;
@@ -610,6 +611,7 @@ async function loadFromGitHub() {
     passeurs     = parseSection(fileContent,'passeurs');
     performances = parsePerformances(fileContent);
     classement   = parseClassement(fileContent);
+    matchResults = parseMatchResults(fileContent);
     const jj = parseJourneeNum(fileContent);
     if (jj) document.getElementById('perf-journee').value = jj;
     totwSlots = {AG:null,BU:null,AD:null,MG:null,MC:null,MD:null,DG:null,DCG:null,DCD:null,DD:null,G:null};
@@ -913,9 +915,10 @@ function applyMatch(){
   updateTeamStats(t1,s1,s2,r1);
   updateTeamStats(t2,s2,s1,r2);
   sortClassement();
+  matchResults.push({journee:parseInt(j),team1:t1,score1:s1,score2:s2,team2:t2});
   renderClassement();
   markMod();
-  showAlert('alert-match',`✓ ${t1} ${s1}–${s2} ${t2} (J${j}) — Classement mis à jour`,'a-success');
+  showAlert('alert-match',`✓ ${t1} ${s1}–${s2} ${t2} (J${j}) — Classement et résultats mis à jour`,'a-success');
 }
 
 function updateTeamStats(name,bp,bc,result){
@@ -1261,6 +1264,49 @@ ${rankItems}
     `;
 }
 
+// ════════════════════════════════════
+//  RÉSULTATS PARSE + GENERATE
+// ════════════════════════════════════
+function parseMatchResults(html){
+  const m=html.match(/<!-- ===== MATCHES-JSON ===== -->([\s\S]*?)<!-- \/MATCHES-JSON -->/);
+  if(!m) return [];
+  try{ return JSON.parse(m[1].trim())||[]; } catch(e){ return []; }
+}
+
+function genResultsAuto(){
+  if(!matchResults.length) return '';
+  // Group by journée
+  const byJ={};
+  matchResults.forEach(m=>{
+    const j=m.journee;
+    if(!byJ[j]) byJ[j]=[];
+    byJ[j].push(m);
+  });
+  return Object.keys(byJ).sort((a,b)=>a-b).map(j=>{
+    const cards=byJ[j].map(m=>{
+      const t1=TEAMS.find(x=>x.name.toLowerCase()===m.team1.toLowerCase())||{logo:'Blacksquad.webp'};
+      const t2=TEAMS.find(x=>x.name.toLowerCase()===m.team2.toLowerCase())||{logo:'Blacksquad.webp'};
+      const scoreColor=m.score1===0&&m.score2===0?'var(--muted)':'#fff';
+      return `
+        <div class="glass match-result-card" style="padding:16px 20px;">
+          <div style="font-size:0.65rem;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">J${j}</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="team-avatar avatar-logo" style="width:36px;height:36px;flex-shrink:0;"><img src="assets/${esc(t1.logo)}" alt="${esc(m.team1)}"></div>
+            <div style="font-weight:700;font-size:0.9rem;flex:1;">${esc(m.team1)}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:${scoreColor};padding:0 8px;">${m.score1} – ${m.score2}</div>
+            <div style="font-weight:700;font-size:0.9rem;flex:1;text-align:right;">${esc(m.team2)}</div>
+            <div class="team-avatar avatar-logo" style="width:36px;height:36px;flex-shrink:0;"><img src="assets/${esc(t2.logo)}" alt="${esc(m.team2)}"></div>
+          </div>
+        </div>`;
+    }).join('\n');
+    return `
+      <!-- Journée ${j} auto -->
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:3px;color:var(--red);margin-bottom:12px;margin-top:24px;">Journée ${j}</div>
+      <div class="results-full-grid" style="gap:12px;margin-bottom:32px;">${cards}
+      </div>`;
+  }).join('\n');
+}
+
 function rebuildHTML(){
   let html=fileContent;
 
@@ -1297,6 +1343,18 @@ ${genEntries(passeurs,'passeurs')}
       `$1\n${rows}\n                $3`
     );
   }
+
+  // Résultats auto
+  html = html.replace(
+    /<!-- ===== RÉSULTATS-AUTO ===== -->[\s\S]*?<!-- \/RÉSULTATS-AUTO -->/,
+    `<!-- ===== RÉSULTATS-AUTO ===== -->${genResultsAuto()}<!-- /RÉSULTATS-AUTO -->`
+  );
+
+  // JSON des matchs
+  html = html.replace(
+    /<!-- ===== MATCHES-JSON ===== -->[\s\S]*?<!-- \/MATCHES-JSON -->/,
+    `<!-- ===== MATCHES-JSON ===== -->${JSON.stringify(matchResults)}<!-- /MATCHES-JSON -->`
+  );
 
   return html;
 }
