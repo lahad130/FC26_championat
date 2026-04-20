@@ -1379,7 +1379,97 @@ ${genEntries(passeurs,'passeurs')}
     `$1<!-- ===== MATCHES-JSON ===== -->${JSON.stringify(matchResults)}<!-- /MATCHES-JSON -->$2`
   );
 
+  // Calendrier : mise à jour automatique des scores et badges
+  html = rebuildCalendar(html);
+
   return html;
+}
+
+function rebuildCalendar(html) {
+  if (!matchResults.length) return html;
+
+  function norm(s){ return (s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+
+  // Index résultats : "jnum_normEquipe1_normEquipe2" → {s1, s2}
+  const rmap = {};
+  matchResults.forEach(m => {
+    const j = m.journee, n1 = norm(m.team1), n2 = norm(m.team2);
+    rmap[`${j}_${n1}_${n2}`] = {s1: m.score1, s2: m.score2};
+    rmap[`${j}_${n2}_${n1}`] = {s1: m.score2, s2: m.score1};
+  });
+
+  // Compte de matchs par journée
+  const countJ = {};
+  matchResults.forEach(m => { countJ[m.journee] = (countJ[m.journee]||0) + 1; });
+
+  const doneJs = Object.keys(countJ).filter(j => countJ[j] >= 8).map(Number);
+  const maxDone = doneJs.length ? Math.max(...doneJs) : 0;
+
+  function badgeFor(jNum) {
+    const cnt = countJ[jNum] || 0;
+    if (cnt >= 8)            return ['done', '✅ Terminée', false];
+    if (cnt > 0)             return ['next', '🔴 En cours', true];
+    if (jNum === maxDone+1)  return ['next', '🔴 Prochaine', true];
+    return ['todo', 'À jouer', false];
+  }
+
+  const CAL_START = '<!-- ===== CALENDRIER-GRILLES ===== -->';
+  const CAL_END   = '<!-- /CALENDRIER-GRILLES -->';
+  const si = html.indexOf(CAL_START);
+  const ei = html.indexOf(CAL_END);
+  if (si === -1 || ei === -1) return html;
+
+  const before = html.slice(0, si + CAL_START.length);
+  const after  = html.slice(ei);
+  let cal = html.slice(si + CAL_START.length, ei);
+
+  // Découper par blocs de journée (chaque bloc commence par un commentaire <!-- Jxx --> ou directement un div)
+  const blockSep = /(?=<!-- J\d|<div class="glass cal-journee-block")/g;
+  const chunks = cal.split(blockSep);
+
+  const newChunks = chunks.map(chunk => {
+    const titleMatch = chunk.match(/Journée (\d+)\s*[—-]\s*([^<]+)<span/);
+    if (!titleMatch) return chunk;
+
+    const jNum = parseInt(titleMatch[1]);
+    const [badgeCls, badgeLabel, isNext] = badgeFor(jNum);
+
+    // Mettre à jour le badge
+    chunk = chunk.replace(
+      /<span class="cal-badge [^"]*">[^<]*<\/span>/,
+      `<span class="cal-badge ${badgeCls}">${badgeLabel}</span>`
+    );
+
+    // Mettre à jour la bordure rouge du bloc "prochaine"
+    if (isNext) {
+      chunk = chunk.replace(
+        /<div class="glass cal-journee-block">/,
+        '<div class="glass cal-journee-block" style="border-color: rgba(228,30,38,0.4);">'
+      );
+    } else {
+      chunk = chunk.replace(
+        '<div class="glass cal-journee-block" style="border-color: rgba(228,30,38,0.4);">',
+        '<div class="glass cal-journee-block">'
+      );
+    }
+
+    // Mettre à jour les scores ligne par ligne (chaque cal-match est sur une seule ligne)
+    chunk = chunk.split('\n').map(line => {
+      if (!line.includes('class="cal-match')) return line;
+      const alts = [...line.matchAll(/alt="([^"]+)"/g)].map(m => m[1]);
+      if (alts.length < 2) return line;
+      const k = `${jNum}_${norm(alts[0])}_${norm(alts[1])}`;
+      const res = rmap[k];
+      if (!res) return line;
+      return line
+        .replace(/class="cal-match(?:\s+played)?"/, 'class="cal-match played"')
+        .replace(/<span class="cal-score(?:\s+tbd)?">[^<]*<\/span>/, `<span class="cal-score">${res.s1}–${res.s2}</span>`);
+    }).join('\n');
+
+    return chunk;
+  });
+
+  return before + newChunks.join('') + after;
 }
 
 // ════════════════════════════════════
