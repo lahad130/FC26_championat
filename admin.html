@@ -1508,13 +1508,14 @@ function parseTeamsData(html) {
   if (s === -1 || e === -1) return {};
   const block = html.slice(s, e);
   const result = {};
-  const lineRe = /['"]([^'"]+)['"]\s*:\s*\{\s*abbr:\s*['"]([^'"]+)['"]\s*,\s*logo:\s*['"]([^'"]+)['"]\s*,\s*players:\s*\[([^\]]*)\]/g;
+  // Handles both 'Name' and "Name with apostrophe"
+  const lineRe = /(?:'([^']+)'|"([^"]+)")\s*:\s*\{\s*abbr:\s*'([^']+)'\s*,\s*logo:\s*'([^']+)'\s*,\s*players:\s*\[([^\]]*)\]/g;
   let m;
   while ((m = lineRe.exec(block)) !== null) {
-    const name    = m[1];
-    const abbr    = m[2];
-    const logo    = m[3];
-    const players = m[4].split(',').map(p => p.trim().replace(/^['"]|['"]$/g,'')).filter(Boolean);
+    const name    = m[1] || m[2];
+    const abbr    = m[3];
+    const logo    = m[4];
+    const players = m[5].split(',').map(p => p.trim().replace(/^['"]|['"]$/g,'')).filter(Boolean);
     result[name] = { abbr, logo, players };
   }
   return result;
@@ -1538,13 +1539,24 @@ function rebuildTeamsData(html) {
 function renderTeamsGrid() {
   const grid = document.getElementById('teams-grid');
   if (!grid) return;
-  grid.innerHTML = Object.entries(teamsData).map(([name, t]) => `
-    <div onclick="selectTeam('${esc(name)}')" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;transition:border-color .2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+  const entries = Object.entries(teamsData);
+  if (!entries.length) {
+    grid.innerHTML = '<p style="color:var(--muted);font-size:.9rem;">Charge d\'abord le fichier depuis GitHub (bouton 🔄 en haut).</p>';
+    return;
+  }
+  grid.innerHTML = entries.map(([name, t]) => {
+    const count = t.players.filter(p=>p&&p!=='En attente').length;
+    return `<div class="team-grid-card" data-team="${esc(name)}" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;transition:border-color .2s;">
       <img src="${t.logo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;margin-bottom:6px;" onerror="this.style.display='none'">
       <div style="font-size:.75rem;font-weight:700;color:var(--text);line-height:1.2;">${esc(name)}</div>
-      <div style="font-size:.65rem;color:var(--muted);margin-top:3px;">${t.players.filter(p=>p&&p!=='En attente').length} joueurs</div>
-    </div>
-  `).join('');
+      <div style="font-size:.65rem;color:var(--muted);margin-top:3px;">${count} joueur${count!==1?'s':''}</div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.team-grid-card').forEach(el => {
+    el.addEventListener('mouseover', () => el.style.borderColor='var(--gold)');
+    el.addEventListener('mouseout',  () => el.style.borderColor='var(--border)');
+    el.addEventListener('click', () => selectTeam(el.dataset.team));
+  });
 }
 
 function selectTeam(name) {
