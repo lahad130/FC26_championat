@@ -215,6 +215,7 @@
     <button class="nav-tab"        data-tab="match"    onclick="switchTab('match',this)">📋 Match</button>
     <button class="nav-tab"        data-tab="classement" onclick="switchTab('classement',this)">📊 Classement</button>
     <button class="nav-tab"        data-tab="performances" onclick="switchTab('performances',this)">⭐ Performances</button>
+    <button class="nav-tab"        data-tab="equipes"  onclick="switchTab('equipes',this)">👥 Équipes</button>
     <button class="nav-tab"        data-tab="settings" onclick="switchTab('settings',this)">⚙ Config</button>
   </div>
 
@@ -404,6 +405,24 @@
     </div>
   </div>
 
+  <!-- ══ ÉQUIPES ══ -->
+  <div id="tab-equipes" class="tab-pane">
+    <div class="sec-header"><div class="sec-title">👥 Gestion des Effectifs</div></div>
+    <div id="alert-equipes"></div>
+    <div id="teams-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;"></div>
+    <div id="team-edit-panel" class="card" style="display:none;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+        <img id="edit-team-logo" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--red);">
+        <div class="card-title" id="edit-team-name" style="margin:0;padding:0;border:none;font-size:1.1rem;"></div>
+      </div>
+      <div id="edit-players-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;min-height:36px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input id="new-player-input" placeholder="Nom du joueur…" onkeydown="if(event.key==='Enter')addPlayerToTeam()" style="flex:1;">
+        <button class="btn btn-green" onclick="addPlayerToTeam()">+ Ajouter</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ SETTINGS ══ -->
   <div id="tab-settings" class="tab-pane">
     <div class="sec-header"><div class="sec-title">⚙ Configuration GitHub</div></div>
@@ -487,6 +506,8 @@ let fileContent = '';
 let fileSha     = '';
 let buteurs     = [];
 let passeurs    = [];
+let teamsData   = {};
+let selectedTeam = null;
 let performances = [];
 let classement  = [];
 let matchResults = [];
@@ -626,10 +647,11 @@ async function loadFromGitHub() {
     performances = parsePerformances(fileContent);
     classement   = parseClassement(fileContent);
     matchResults = parseMatchResults(fileContent);
+    teamsData    = parseTeamsData(fileContent);
     const jj = parseJourneeNum(fileContent);
     if (jj) document.getElementById('perf-journee').value = jj;
     totwSlots = {AG:null,BU:null,AD:null,MG:null,MC:null,MD:null,DG:null,DCG:null,DCD:null,DD:null,G:null};
-    renderBut(); renderPass(); renderPerf(); renderClassement();
+    renderBut(); renderPass(); renderPerf(); renderClassement(); renderTeamsGrid();
     setStatus('s-ok', `${owner}/${repo} ✓`);
     modified = false;
     document.getElementById('pub-btn').disabled = true;
@@ -1382,6 +1404,11 @@ ${genEntries(passeurs,'passeurs')}
   // Calendrier : mise à jour automatique des scores et badges
   html = rebuildCalendar(html);
 
+  // Effectifs des équipes
+  if (Object.keys(teamsData).length > 0) {
+    html = rebuildTeamsData(html);
+  }
+
   return html;
 }
 
@@ -1470,6 +1497,109 @@ function rebuildCalendar(html) {
   });
 
   return before + newChunks.join('') + after;
+}
+
+// ════════════════════════════════════
+//  ÉQUIPES
+// ════════════════════════════════════
+function parseTeamsData(html) {
+  const s = html.indexOf('// ===== TEAMS-DATA =====');
+  const e = html.indexOf('// ===== /TEAMS-DATA =====');
+  if (s === -1 || e === -1) return {};
+  const block = html.slice(s, e);
+  const result = {};
+  const lineRe = /['"]([^'"]+)['"]\s*:\s*\{\s*abbr:\s*['"]([^'"]+)['"]\s*,\s*logo:\s*['"]([^'"]+)['"]\s*,\s*players:\s*\[([^\]]*)\]/g;
+  let m;
+  while ((m = lineRe.exec(block)) !== null) {
+    const name    = m[1];
+    const abbr    = m[2];
+    const logo    = m[3];
+    const players = m[4].split(',').map(p => p.trim().replace(/^['"]|['"]$/g,'')).filter(Boolean);
+    result[name] = { abbr, logo, players };
+  }
+  return result;
+}
+
+function rebuildTeamsData(html) {
+  const START = '// ===== TEAMS-DATA =====';
+  const END   = '// ===== /TEAMS-DATA =====';
+  const si = html.indexOf(START);
+  const ei = html.indexOf(END);
+  if (si === -1 || ei === -1) return html;
+  const lines = Object.entries(teamsData).map(([name, t]) => {
+    const ps = t.players.map(p => `'${p.replace(/'/g,"\\'")}' `).join(',');
+    const nameQ = name.includes("'") ? `"${name}"` : `'${name}'`;
+    return `      ${nameQ}: { abbr: '${t.abbr}', logo: '${t.logo}', players: [${ps}] },`;
+  }).join('\n');
+  const newBlock = `${START}\n    const TEAMS = {\n${lines}\n    };\n    `;
+  return html.slice(0, si) + newBlock + html.slice(ei);
+}
+
+function renderTeamsGrid() {
+  const grid = document.getElementById('teams-grid');
+  if (!grid) return;
+  grid.innerHTML = Object.entries(teamsData).map(([name, t]) => `
+    <div onclick="selectTeam('${esc(name)}')" style="cursor:pointer;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;transition:border-color .2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+      <img src="${t.logo}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;margin-bottom:6px;" onerror="this.style.display='none'">
+      <div style="font-size:.75rem;font-weight:700;color:var(--text);line-height:1.2;">${esc(name)}</div>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:3px;">${t.players.filter(p=>p&&p!=='En attente').length} joueurs</div>
+    </div>
+  `).join('');
+}
+
+function selectTeam(name) {
+  selectedTeam = name;
+  const t = teamsData[name];
+  if (!t) return;
+  document.getElementById('edit-team-logo').src = t.logo;
+  document.getElementById('edit-team-name').textContent = name;
+  document.getElementById('team-edit-panel').style.display = 'block';
+  document.getElementById('new-player-input').value = '';
+  renderPlayerTags();
+  document.getElementById('new-player-input').focus();
+}
+
+function renderPlayerTags() {
+  const t = teamsData[selectedTeam];
+  if (!t) return;
+  const validPlayers = t.players.filter(p => p && p !== 'En attente');
+  document.getElementById('edit-players-list').innerHTML = validPlayers.map((p, i) => `
+    <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:.82rem;">
+      ${esc(p)}
+      <button onclick="removePlayer(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:0;line-height:1;" title="Supprimer">✕</button>
+    </span>
+  `).join('');
+}
+
+function addPlayerToTeam() {
+  if (!selectedTeam) return;
+  const input = document.getElementById('new-player-input');
+  const name = input.value.trim();
+  if (!name) { showAlert('alert-equipes','Entrez le nom du joueur','a-error'); return; }
+  const t = teamsData[selectedTeam];
+  const current = t.players.filter(p => p && p !== 'En attente');
+  if (current.map(p=>p.toLowerCase()).includes(name.toLowerCase())) {
+    showAlert('alert-equipes','Ce joueur est déjà dans l\'effectif','a-error'); return;
+  }
+  t.players = [...current, name];
+  input.value = '';
+  renderPlayerTags();
+  renderTeamsGrid();
+  markMod();
+  showAlert('alert-equipes',`✓ ${name} ajouté à ${selectedTeam}`,'a-success');
+}
+
+function removePlayer(idx) {
+  if (!selectedTeam) return;
+  const t = teamsData[selectedTeam];
+  const current = t.players.filter(p => p && p !== 'En attente');
+  const removed = current[idx];
+  current.splice(idx, 1);
+  t.players = current.length ? current : ['En attente'];
+  renderPlayerTags();
+  renderTeamsGrid();
+  markMod();
+  showAlert('alert-equipes',`✓ ${removed} retiré de ${selectedTeam}`,'a-success');
 }
 
 // ════════════════════════════════════
