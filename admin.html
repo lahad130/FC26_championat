@@ -279,35 +279,42 @@
 
   <!-- ══ MATCH ══ -->
   <div id="tab-match" class="tab-pane">
-    <div class="sec-header"><div class="sec-title">📋 Ajouter un Match</div></div>
+    <div class="sec-header"><div class="sec-title">📋 Résultats par Journée</div></div>
+    <div id="alert-match" style="margin-bottom:8px;"></div>
+
+    <!-- Journée selector -->
     <div class="card">
-      <div class="card-title">Informations</div>
-      <div class="fg-3">
-        <div><label>Journée</label><select id="m-journee"></select></div>
-        <div><label>Équipe 1</label><select id="m-team1"></select></div>
-        <div><label>Équipe 2</label><select id="m-team2"></select></div>
-      </div>
-      <div class="fg-2">
-        <div><label>Score Équipe 1</label><input id="m-score1" type="number" min="0" value="0"></div>
-        <div><label>Score Équipe 2</label><input id="m-score2" type="number" min="0" value="0"></div>
+      <div class="card-title">Sélectionner une journée</div>
+      <div id="journee-btns" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
+        <span style="color:var(--muted);font-size:.8rem;">Charge d'abord le fichier (🔄)</span>
       </div>
     </div>
-    <div class="card" style="margin-top:8px;">
-      <div class="card-title">Détails du match <span style="color:var(--muted);font-size:.7rem;font-weight:400;">(optionnel)</span></div>
+
+    <!-- Match grid -->
+    <div id="quick-section" style="display:none;margin-top:8px;">
+      <div class="sec-header" style="margin-bottom:8px;">
+        <div class="sec-title" id="quick-title"></div>
+        <span style="font-size:.75rem;color:var(--muted);">✓ = déjà enregistré</span>
+      </div>
+      <div id="quick-grid"></div>
+      <button class="btn btn-gold" style="margin-top:12px;width:100%;" onclick="saveQuickScores()">✓ Enregistrer les scores</button>
+    </div>
+
+    <!-- Optional match details -->
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">Détails d'un match <span style="color:var(--muted);font-size:.7rem;font-weight:400;">(optionnel — associé au dernier score saisi)</span></div>
       <div class="fg-2">
         <div>
           <label>Buteurs <span style="color:var(--muted);font-size:.7rem;">(un par ligne)</span></label>
-          <textarea id="m-buteurs" rows="5" placeholder="Joueur ×2 (Équipe 1)&#10;Joueur ×1 (Équipe 2)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;padding:8px;font-size:.82rem;resize:vertical;"></textarea>
+          <textarea id="m-buteurs" rows="4" placeholder="Joueur ×2 (Équipe 1)&#10;Joueur ×1 (Équipe 2)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;padding:8px;font-size:.82rem;resize:vertical;"></textarea>
         </div>
         <div>
           <label>Passeurs décisifs <span style="color:var(--muted);font-size:.7rem;">(un par ligne)</span></label>
-          <textarea id="m-passeurs" rows="5" placeholder="Joueur ×1 (Équipe 1)&#10;Joueur ×2 (Équipe 2)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;padding:8px;font-size:.82rem;resize:vertical;"></textarea>
+          <textarea id="m-passeurs" rows="4" placeholder="Joueur ×1 (Équipe 1)&#10;Joueur ×2 (Équipe 2)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;padding:8px;font-size:.82rem;resize:vertical;"></textarea>
         </div>
       </div>
       <div style="margin-top:8px;"><label>MOTM <span style="color:var(--muted);font-size:.7rem;">(Man of the Match)</span></label><input id="m-motm" placeholder="ex: Joueur (Équipe) · 8.5/10" style="width:100%;"></div>
     </div>
-    <button class="btn btn-gold" style="margin-top:4px;" onclick="applyMatch()">✓ Enregistrer le match</button>
-    <div id="alert-match" style="margin-top:12px;"></div>
   </div>
 
   <!-- ══ CLASSEMENT ══ -->
@@ -511,6 +518,8 @@ let selectedTeam = null;
 let performances = [];
 let classement  = [];
 let matchResults = [];
+let calendarData = {};
+let currentQuickJournee = null;
 let totwSlots   = {AG:null,BU:null,AD:null,MG:null,MC:null,MD:null,DG:null,DCG:null,DCD:null,DD:null,G:null};
 let modified    = false;
 let rowId       = 0;
@@ -547,13 +556,11 @@ function changePwd() {
 // ════════════════════════════════════
 function init() {
   const opts = TEAMS.map(t=>`<option value="${t.name}">${t.name}</option>`).join('');
-  ['ab-team','ap-team','m-team1','m-team2','ap2-team','perf-def-team','perf-streak-team'].forEach(id => {
+  ['ab-team','ap-team','ap2-team','perf-def-team','perf-streak-team'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = opts;
   });
   initTotwBuilder();
-  const jSel = document.getElementById('m-journee');
-  for (let i=1;i<=30;i++) jSel.innerHTML += `<option value="${i}">Journée ${i}</option>`;
   addRow('scorer'); addRow('assist');
 
   // Load saved settings
@@ -647,11 +654,12 @@ async function loadFromGitHub() {
     performances = parsePerformances(fileContent);
     classement   = parseClassement(fileContent);
     matchResults = parseMatchResults(fileContent);
+    calendarData = parseCalendar(fileContent);
     teamsData    = parseTeamsData(fileContent);
     const jj = parseJourneeNum(fileContent);
     if (jj) document.getElementById('perf-journee').value = jj;
     totwSlots = {AG:null,BU:null,AD:null,MG:null,MC:null,MD:null,DG:null,DCG:null,DCD:null,DD:null,G:null};
-    renderBut(); renderPass(); renderPerf(); renderClassement(); renderTeamsGrid();
+    renderBut(); renderPass(); renderPerf(); renderClassement(); renderTeamsGrid(); renderJourneeBtns();
     setStatus('s-ok', `${owner}/${repo} ✓`);
     modified = false;
     document.getElementById('pub-btn').disabled = true;
@@ -1308,6 +1316,163 @@ ${rankItems}
 }
 
 // ════════════════════════════════════
+//  CALENDRIER PARSE
+// ════════════════════════════════════
+function parseCalendar(html) {
+  const cal = {};
+  const si = html.indexOf('<!-- ===== CALENDRIER-GRILLES ===== -->');
+  const ei = html.indexOf('<!-- /CALENDRIER-GRILLES -->');
+  if (si < 0 || ei < 0) return cal;
+  const section = html.slice(si, ei);
+  const blocks = section.split(/<div class="glass cal-journee-block[^>]*>/);
+  for (const block of blocks.slice(1)) {
+    const titleM = block.match(/Journée (\d+)/);
+    if (!titleM) continue;
+    const jNum = parseInt(titleM[1]);
+    // Each cal-match has 2 cal-logo imgs: first=team1, second=team2
+    const alts = [...block.matchAll(/class="cal-logo"[^>]*alt="([^"]+)"/g)].map(m=>m[1]);
+    const pairs = [];
+    for (let i = 0; i + 1 < alts.length; i += 2) {
+      pairs.push({ team1: alts[i], team2: alts[i+1] });
+    }
+    if (pairs.length) cal[jNum] = pairs;
+  }
+  return cal;
+}
+
+// ════════════════════════════════════
+//  SAISIE RAPIDE PAR JOURNÉE
+// ════════════════════════════════════
+function renderJourneeBtns() {
+  const el = document.getElementById('journee-btns');
+  if (!el) return;
+  const jNums = Object.keys(calendarData).map(Number).sort((a,b)=>a-b);
+  if (!jNums.length) { el.innerHTML = '<span style="color:var(--muted);font-size:.8rem;">Charge d\'abord le fichier (🔄)</span>'; return; }
+  // Find max done journée to highlight next
+  const played = new Set(matchResults.map(m=>m.journee));
+  let maxDone = 0;
+  jNums.forEach(j => { if (played.has(j)) maxDone = j; });
+  el.innerHTML = jNums.map(j => {
+    const done = played.has(j);
+    const next = j === maxDone + 1;
+    const style = done ? 'background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;'
+                : next ? 'background:rgba(228,30,38,0.15);border-color:var(--red);color:var(--red);'
+                : '';
+    return `<button class="btn btn-outline btn-sm" onclick="loadQuickMatches(${j})" style="min-width:44px;${style}">J${j}</button>`;
+  }).join('');
+}
+
+function loadQuickMatches(jNum) {
+  currentQuickJournee = jNum;
+  const pairs = calendarData[jNum] || [];
+  function nrm(s){ return (s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+  const rmap = {};
+  matchResults.forEach((m,idx) => {
+    rmap[`${m.journee}_${nrm(m.team1)}_${nrm(m.team2)}`] = {m,idx,flip:false};
+    rmap[`${m.journee}_${nrm(m.team2)}_${nrm(m.team1)}`] = {m,idx,flip:true};
+  });
+  document.getElementById('quick-title').textContent = `Journée ${jNum}`;
+  document.getElementById('quick-section').style.display = '';
+  const grid = document.getElementById('quick-grid');
+  grid.innerHTML = pairs.map(({team1,team2},i) => {
+    const t1 = TEAMS.find(x=>x.name.toLowerCase()===team1.toLowerCase())||{logo:'Blacksquad.webp'};
+    const t2 = TEAMS.find(x=>x.name.toLowerCase()===team2.toLowerCase())||{logo:'Blacksquad.webp'};
+    const res = rmap[`${jNum}_${nrm(team1)}_${nrm(team2)}`];
+    let s1=0, s2=0, done=false;
+    if (res) { s1 = res.flip?res.m.score2:res.m.score1; s2 = res.flip?res.m.score1:res.m.score2; done=true; }
+    const doneHtml = done
+      ? `<span style="color:var(--green);font-size:.9rem;min-width:18px;">✓</span><button title="Supprimer ce résultat" onclick="deleteQuickMatch(${jNum},'${esc(team1)}','${esc(team2)}')" style="background:rgba(220,53,69,0.15);border:1px solid rgba(220,53,69,0.35);color:#ff6b6b;border-radius:4px;padding:0 6px;height:22px;cursor:pointer;font-size:.8rem;flex-shrink:0;line-height:1;">✕</button>`
+      : '<span style="min-width:18px;"></span><span style="min-width:24px;"></span>';
+    return `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,${done?'0.18':'0.07'});border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:6px;" data-t1="${esc(team1)}" data-t2="${esc(team2)}">
+      <img src="assets/${esc(t1.logo)}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+      <span style="font-weight:700;font-size:.83rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(team1)}</span>
+      <input type="number" min="0" id="qs-s1-${i}" value="${s1}" style="width:46px;text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;padding:2px 0;line-height:1;">
+      <span style="color:var(--muted);font-weight:700;">–</span>
+      <input type="number" min="0" id="qs-s2-${i}" value="${s2}" style="width:46px;text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;padding:2px 0;line-height:1;">
+      <span style="font-weight:700;font-size:.83rem;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(team2)}</span>
+      <img src="assets/${esc(t2.logo)}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+      ${doneHtml}
+    </div>`;
+  }).join('');
+}
+
+function undoTeamStats(name, bp, bc, result) {
+  const t = classement.find(c=>c.name.toLowerCase()===name.toLowerCase());
+  if (!t) return;
+  t.pj--; t.bp-=bp; t.bc-=bc;
+  if(result==='V') t.v--;
+  else if(result==='N') t.n--;
+  else t.d--;
+}
+
+function deleteQuickMatch(jNum, team1, team2) {
+  function nrm(s){ return (s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+  const idx = matchResults.findIndex(m =>
+    m.journee===jNum &&
+    ((nrm(m.team1)===nrm(team1)&&nrm(m.team2)===nrm(team2))||
+     (nrm(m.team1)===nrm(team2)&&nrm(m.team2)===nrm(team1)))
+  );
+  if (idx<0) return;
+  const m=matchResults[idx];
+  const flip=nrm(m.team1)===nrm(team2);
+  const s1=flip?m.score2:m.score1, s2=flip?m.score1:m.score2;
+  const r1=s1>s2?'V':s1<s2?'D':'N', r2=s2>s1?'V':s2<s1?'D':'N';
+  undoTeamStats(team1,s1,s2,r1); undoTeamStats(team2,s2,s1,r2);
+  matchResults.splice(idx,1);
+  sortClassement(); renderClassement(); markMod(); renderJourneeBtns();
+  loadQuickMatches(jNum);
+  showAlert('alert-match',`✓ Résultat supprimé — Classement actualisé`,'a-success');
+}
+
+function saveQuickScores() {
+  if (!currentQuickJournee || !classement.length) {
+    showAlert('alert-match','Charge d\'abord le fichier (🔄)','a-error'); return;
+  }
+  const jNum = currentQuickJournee;
+  const pairs = calendarData[jNum] || [];
+  function nrm(s){ return (s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+  const buteurs  = (document.getElementById('m-buteurs').value||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  const passeurs = (document.getElementById('m-passeurs').value||'').split('\n').map(s=>s.trim()).filter(Boolean);
+  const motm     = (document.getElementById('m-motm').value||'').trim();
+  let added=0, updated=0, lastIdx=-1;
+  pairs.forEach(({team1,team2},i) => {
+    const s1v = document.getElementById(`qs-s1-${i}`)?.value ?? '';
+    const s2v = document.getElementById(`qs-s2-${i}`)?.value ?? '';
+    if (s1v===''&&s2v==='') return;
+    const score1=parseInt(s1v)||0, score2=parseInt(s2v)||0;
+    const existIdx = matchResults.findIndex(m =>
+      m.journee===jNum &&
+      ((nrm(m.team1)===nrm(team1)&&nrm(m.team2)===nrm(team2))||
+       (nrm(m.team1)===nrm(team2)&&nrm(m.team2)===nrm(team1)))
+    );
+    if (existIdx>=0) {
+      const old=matchResults[existIdx];
+      const flip=nrm(old.team1)===nrm(team2);
+      const os1=flip?old.score2:old.score1, os2=flip?old.score1:old.score2;
+      const or1=os1>os2?'V':os1<os2?'D':'N', or2=os2>os1?'V':os2<os1?'D':'N';
+      undoTeamStats(team1,os1,os2,or1); undoTeamStats(team2,os2,os1,or2);
+      matchResults[existIdx]={...old,team1,score1,team2,score2,buteurs:[],passeurs:[],motm:''};
+      lastIdx=existIdx; updated++;
+    } else {
+      matchResults.push({journee:jNum,team1,score1,team2,score2,buteurs:[],passeurs:[],motm:''});
+      lastIdx=matchResults.length-1; added++;
+    }
+    const r1=score1>score2?'V':score1<score2?'D':'N', r2=score2>score1?'V':score2<score1?'D':'N';
+    updateTeamStats(team1,score1,score2,r1); updateTeamStats(team2,score2,score1,r2);
+  });
+  // Attach details to last scored match
+  if (lastIdx>=0 && (buteurs.length||passeurs.length||motm)) {
+    matchResults[lastIdx]={...matchResults[lastIdx],buteurs,passeurs,motm};
+  }
+  sortClassement(); renderClassement(); markMod(); renderJourneeBtns();
+  loadQuickMatches(jNum);
+  document.getElementById('m-buteurs').value='';
+  document.getElementById('m-passeurs').value='';
+  document.getElementById('m-motm').value='';
+  showAlert('alert-match',`✓ J${jNum} — ${added} ajouté(s), ${updated} mis à jour — Classement actualisé`,'a-success');
+}
+
+// ════════════════════════════════════
 //  RÉSULTATS PARSE + GENERATE
 // ════════════════════════════════════
 function parseMatchResults(html){
@@ -1317,32 +1482,55 @@ function parseMatchResults(html){
 }
 
 function genResultsAuto(){
-  if(!matchResults.length) return '';
-  // Group by journée, tracking original index
-  const byJ={};
-  matchResults.forEach((m,idx)=>{
-    const j=m.journee;
-    if(!byJ[j]) byJ[j]=[];
-    byJ[j].push({m,idx});
-  });
-  return Object.keys(byJ).sort((a,b)=>a-b).map(j=>{
-    const cards=byJ[j].map(({m,idx})=>{
-      const t1=TEAMS.find(x=>x.name.toLowerCase()===m.team1.toLowerCase())||{logo:'Blacksquad.webp'};
-      const t2=TEAMS.find(x=>x.name.toLowerCase()===m.team2.toLowerCase())||{logo:'Blacksquad.webp'};
-      const scoreColor=m.score1===0&&m.score2===0?'var(--muted)':'#fff';
-      const hasDetail=(m.buteurs&&m.buteurs.length)||(m.passeurs&&m.passeurs.length)||m.motm;
-      const clickAttr=`cursor:pointer;" onclick="openAutoMatchModal(${idx})"`;
-      return `
+  function nrm(s){ return (s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+  // Use calendarData if loaded, otherwise fall back to matchResults grouping
+  const jNums = Object.keys(calendarData).length
+    ? Object.keys(calendarData).map(Number).sort((a,b)=>a-b)
+    : [...new Set(matchResults.map(m=>m.journee))].sort((a,b)=>a-b);
+  if (!jNums.length) return '';
+  return jNums.map(j=>{
+    const pairs = (calendarData[j]||[]).length
+      ? calendarData[j]
+      : matchResults.filter(m=>m.journee===j).map(m=>({team1:m.team1,team2:m.team2}));
+    const cards = pairs.map(({team1,team2})=>{
+      const t1=TEAMS.find(x=>x.name.toLowerCase()===team1.toLowerCase())||{logo:'Blacksquad.webp'};
+      const t2=TEAMS.find(x=>x.name.toLowerCase()===team2.toLowerCase())||{logo:'Blacksquad.webp'};
+      const ridx=matchResults.findIndex(m=>
+        m.journee===j &&
+        ((nrm(m.team1)===nrm(team1)&&nrm(m.team2)===nrm(team2))||
+         (nrm(m.team1)===nrm(team2)&&nrm(m.team2)===nrm(team1)))
+      );
+      if (ridx>=0) {
+        const m=matchResults[ridx];
+        const flip=nrm(m.team1)===nrm(team2);
+        const s1=flip?m.score2:m.score1, s2=flip?m.score1:m.score2;
+        const scoreColor=s1===0&&s2===0?'var(--muted)':'#fff';
+        const hasDetail=(m.buteurs&&m.buteurs.length)||(m.passeurs&&m.passeurs.length)||m.motm;
+        const clickAttr=`cursor:pointer;" onclick="openAutoMatchModal(${ridx})"`;
+        return `
         <div class="glass match-result-card" style="padding:16px 20px;${clickAttr}>
           <div style="font-size:0.65rem;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">J${j}${hasDetail?' · cliquer pour détails':''}</div>
           <div style="display:flex;align-items:center;gap:10px;">
-            <div class="team-avatar avatar-logo" style="width:36px;height:36px;flex-shrink:0;"><img src="assets/${esc(t1.logo)}" alt="${esc(m.team1)}"></div>
-            <div style="font-weight:700;font-size:0.9rem;flex:1;">${esc(m.team1)}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:${scoreColor};padding:0 8px;">${m.score1} – ${m.score2}</div>
-            <div style="font-weight:700;font-size:0.9rem;flex:1;text-align:right;">${esc(m.team2)}</div>
-            <div class="team-avatar avatar-logo" style="width:36px;height:36px;flex-shrink:0;"><img src="assets/${esc(t2.logo)}" alt="${esc(m.team2)}"></div>
+            <div class="team-avatar avatar-logo" style="width:36px;height:36px;flex-shrink:0;"><img src="assets/${esc(t1.logo)}" alt="${esc(team1)}"></div>
+            <div style="font-weight:700;font-size:0.9rem;flex:1;">${esc(team1)}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:${scoreColor};padding:0 8px;">${s1} – ${s2}</div>
+            <div style="font-weight:700;font-size:0.9rem;flex:1;text-align:right;">${esc(team2)}</div>
+            <div class="team-avatar avatar-logo" style="width:36px;height:36px;flex-shrink:0;"><img src="assets/${esc(t2.logo)}" alt="${esc(team2)}"></div>
           </div>
         </div>`;
+      } else {
+        return `
+        <div class="glass match-result-card" style="padding:16px 20px;opacity:0.5;cursor:default;">
+          <div style="font-size:0.65rem;font-weight:700;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">J${j} · à venir</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="team-avatar avatar-logo" style="width:36px;height:36px;flex-shrink:0;"><img src="assets/${esc(t1.logo)}" alt="${esc(team1)}"></div>
+            <div style="font-weight:700;font-size:0.9rem;flex:1;">${esc(team1)}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--muted);padding:0 8px;">vs</div>
+            <div style="font-weight:700;font-size:0.9rem;flex:1;text-align:right;">${esc(team2)}</div>
+            <div class="team-avatar avatar-logo" style="width:36px;height:36px;flex-shrink:0;"><img src="assets/${esc(t2.logo)}" alt="${esc(team2)}"></div>
+          </div>
+        </div>`;
+      }
     }).join('\n');
     return `
       <!-- Journée ${j} auto -->
