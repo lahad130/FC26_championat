@@ -321,9 +321,14 @@
   <div id="tab-classement" class="tab-pane">
     <div class="sec-header">
       <div class="sec-title">📊 Classement</div>
-      <span style="font-size:.8rem;color:var(--muted);">Mis à jour via l'onglet Match → Publier pour envoyer sur le site</span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <span style="font-size:.8rem;color:var(--muted);">Publier pour envoyer sur le site</span>
+        <button id="btn-edit-class" class="btn btn-outline btn-sm" onclick="toggleClassementEdit()">✏️ Modifier</button>
+      </div>
     </div>
-    <div id="class-table-wrap" class="tbl-card card" style="margin-bottom:16px;">
+    <div id="alert-class" style="margin-bottom:8px;"></div>
+    <!-- Vue normale -->
+    <div id="class-view" class="tbl-card card" style="margin-bottom:16px;">
       <div class="table-wrap">
         <table class="data-table" id="class-admin-table">
           <thead><tr>
@@ -336,7 +341,17 @@
         </table>
       </div>
     </div>
-    <div id="alert-class" style="margin-top:12px;"></div>
+    <!-- Vue édition -->
+    <div id="class-edit" style="display:none;">
+      <div class="card" style="margin-bottom:12px;padding:10px 14px;font-size:.8rem;color:var(--muted);border-left:3px solid var(--gold);">
+        Modifie directement V, N, D, BP, BC. PJ, +/- et Pts se recalculent automatiquement.
+      </div>
+      <div id="class-edit-rows"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="btn btn-gold" style="flex:1;" onclick="saveClassementEdit()">✓ Valider les modifications</button>
+        <button class="btn btn-outline" onclick="cancelClassementEdit()">✕ Annuler</button>
+      </div>
+    </div>
   </div>
 
   <!-- ══ PERFORMANCES ══ -->
@@ -1043,6 +1058,88 @@ function renderClassement(){
       <td><div style="display:flex;gap:2px;justify-content:center">${formeHtml}</div></td>
     </tr>`;
   }).join('');
+}
+
+function toggleClassementEdit() {
+  if (!classement.length) {
+    showAlert('alert-class','Charge d\'abord le fichier (🔄)','a-error'); return;
+  }
+  document.getElementById('class-view').style.display = 'none';
+  document.getElementById('class-edit').style.display = '';
+  document.getElementById('btn-edit-class').style.display = 'none';
+  const inp = (id,val) =>
+    `<input type="number" min="0" id="${id}" value="${val}"
+      style="width:46px;text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-size:.9rem;padding:2px 4px;"
+      oninput="refreshClassEditRow(${classement.indexOf(classement.find(t=>id.startsWith('ce-'+t.name.replace(/[^a-z0-9]/gi,'_')+'_')))})">`;
+  const logo = name => (TEAMS.find(x=>x.name.toLowerCase()===name.toLowerCase())||{logo:'Blacksquad.webp'}).logo;
+  document.getElementById('class-edit-rows').innerHTML = classement.map((t,i) => {
+    const sid = n => `ce-${t.name.replace(/[^a-z0-9]/gi,'_')}_${n}`;
+    const pj=t.v+t.n+t.d, di=t.bp-t.bc, p=t.v*3+t.n;
+    const diffCol = di>0?`<span style="color:var(--green)">+${di}</span>`:di<0?`<span style="color:var(--red)">${di}</span>`:`<span style="color:var(--muted)">0</span>`;
+    return `<div id="ce-row-${i}" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 12px;margin-bottom:6px;flex-wrap:wrap;">
+      <img src="assets/${logo(t.name)}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+      <span style="font-weight:700;font-size:.82rem;flex:1;min-width:90px;">${esc(t.name)}</span>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;"><span style="font-size:.6rem;color:var(--muted);">V</span><input type="number" min="0" id="${sid('v')}" value="${t.v}" style="width:42px;text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-size:.9rem;padding:2px 0;" oninput="refreshClassEditRow(${i})"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;"><span style="font-size:.6rem;color:var(--muted);">N</span><input type="number" min="0" id="${sid('n')}" value="${t.n}" style="width:42px;text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-size:.9rem;padding:2px 0;" oninput="refreshClassEditRow(${i})"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;"><span style="font-size:.6rem;color:var(--muted);">D</span><input type="number" min="0" id="${sid('d')}" value="${t.d}" style="width:42px;text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-size:.9rem;padding:2px 0;" oninput="refreshClassEditRow(${i})"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;"><span style="font-size:.6rem;color:var(--muted);">BP</span><input type="number" min="0" id="${sid('bp')}" value="${t.bp}" style="width:46px;text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-size:.9rem;padding:2px 0;" oninput="refreshClassEditRow(${i})"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:1px;"><span style="font-size:.6rem;color:var(--muted);">BC</span><input type="number" min="0" id="${sid('bc')}" value="${t.bc}" style="width:46px;text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-size:.9rem;padding:2px 0;" oninput="refreshClassEditRow(${i})"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-left:6px;min-width:80px;">
+          <span style="font-size:.65rem;color:var(--muted);">PJ &nbsp; +/- &nbsp; Pts</span>
+          <span id="ce-computed-${i}" style="font-size:.85rem;font-weight:700;letter-spacing:1px;">${pj} &nbsp; <span>${diffCol}</span> &nbsp; ${p}</span>
+        </div>
+        <button onclick="resetClassRow(${i})" title="Remettre à zéro" style="background:rgba(220,53,69,0.15);border:1px solid rgba(220,53,69,0.3);color:#ff6b6b;border-radius:4px;padding:2px 7px;cursor:pointer;font-size:.8rem;flex-shrink:0;height:26px;">✕ RAZ</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function refreshClassEditRow(i) {
+  const t = classement[i];
+  if (!t) return;
+  const sid = n => `ce-${t.name.replace(/[^a-z0-9]/gi,'_')}_${n}`;
+  const v  = parseInt(document.getElementById(sid('v'))?.value)||0;
+  const n  = parseInt(document.getElementById(sid('n'))?.value)||0;
+  const d  = parseInt(document.getElementById(sid('d'))?.value)||0;
+  const bp = parseInt(document.getElementById(sid('bp'))?.value)||0;
+  const bc = parseInt(document.getElementById(sid('bc'))?.value)||0;
+  const pj = v+n+d, di = bp-bc, p = v*3+n;
+  const diffHtml = di>0?`<span style="color:var(--green)">+${di}</span>`:di<0?`<span style="color:var(--red)">${di}</span>`:`<span style="color:var(--muted)">0</span>`;
+  const el = document.getElementById(`ce-computed-${i}`);
+  if (el) el.innerHTML = `${pj} &nbsp; ${diffHtml} &nbsp; ${p}`;
+}
+
+function resetClassRow(i) {
+  const t = classement[i];
+  if (!t) return;
+  const sid = n => `ce-${t.name.replace(/[^a-z0-9]/gi,'_')}_${n}`;
+  ['v','n','d','bp','bc'].forEach(f => {
+    const el = document.getElementById(sid(f));
+    if (el) el.value = 0;
+  });
+  refreshClassEditRow(i);
+}
+
+function saveClassementEdit() {
+  classement.forEach((t, i) => {
+    const sid = n => `ce-${t.name.replace(/[^a-z0-9]/gi,'_')}_${n}`;
+    const v  = parseInt(document.getElementById(sid('v'))?.value)||0;
+    const n  = parseInt(document.getElementById(sid('n'))?.value)||0;
+    const d  = parseInt(document.getElementById(sid('d'))?.value)||0;
+    const bp = parseInt(document.getElementById(sid('bp'))?.value)||0;
+    const bc = parseInt(document.getElementById(sid('bc'))?.value)||0;
+    t.v=v; t.n=n; t.d=d; t.bp=bp; t.bc=bc; t.pj=v+n+d;
+  });
+  sortClassement(); renderClassement(); markMod();
+  cancelClassementEdit();
+  showAlert('alert-class','✓ Classement modifié — N\'oublie pas de Publier','a-success');
+}
+
+function cancelClassementEdit() {
+  document.getElementById('class-view').style.display = '';
+  document.getElementById('class-edit').style.display = 'none';
+  document.getElementById('btn-edit-class').style.display = '';
 }
 
 function genClassementRows(){
