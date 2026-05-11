@@ -203,26 +203,26 @@
         <span class="status-dot"></span>
         <span class="status-text">Non connecté</span>
       </span>
-      <button class="btn btn-outline btn-sm" onclick="switchTab('settings',document.querySelector('[data-tab=settings]'))" title="Configuration">⚙</button>
-      <button class="btn btn-outline btn-sm" id="load-btn" onclick="loadFromGitHub()" disabled title="Charger depuis GitHub">🔄</button>
-      <button class="btn btn-blue btn-sm" id="pub-btn" onclick="publishToGitHub()" disabled>🚀 <span class="status-text">Publier</span></button>
+      <button class="btn btn-outline btn-sm" onclick="switchTab('settings',document.querySelector('[data-tab=settings]'))" title="Configuration">Config</button>
+      <button class="btn btn-outline btn-sm" id="load-btn" onclick="loadFromGitHub()" disabled title="Charger depuis GitHub">Charger</button>
+      <button class="btn btn-blue btn-sm" id="pub-btn" onclick="publishToGitHub()" disabled><span class="status-text">Publier</span></button>
     </div>
   </div>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" data-tab="buteurs"  onclick="switchTab('buteurs',this)">⚽ Buteurs</button>
-    <button class="nav-tab"        data-tab="passeurs" onclick="switchTab('passeurs',this)">🎯 Passeurs</button>
-    <button class="nav-tab"        data-tab="match"    onclick="switchTab('match',this)">📋 Match</button>
-    <button class="nav-tab"        data-tab="classement" onclick="switchTab('classement',this)">📊 Classement</button>
-    <button class="nav-tab"        data-tab="performances" onclick="switchTab('performances',this)">⭐ Performances</button>
-    <button class="nav-tab"        data-tab="equipes"  onclick="switchTab('equipes',this)">👥 Équipes</button>
-    <button class="nav-tab"        data-tab="settings" onclick="switchTab('settings',this)">⚙ Config</button>
+    <button class="nav-tab active" data-tab="buteurs"  onclick="switchTab('buteurs',this)">Buteurs</button>
+    <button class="nav-tab"        data-tab="passeurs" onclick="switchTab('passeurs',this)">Passeurs</button>
+    <button class="nav-tab"        data-tab="match"    onclick="switchTab('match',this)">Match</button>
+    <button class="nav-tab"        data-tab="classement" onclick="switchTab('classement',this)">Classement</button>
+    <button class="nav-tab"        data-tab="performances" onclick="switchTab('performances',this)">Performances</button>
+    <button class="nav-tab"        data-tab="equipes"  onclick="switchTab('equipes',this)">Équipes</button>
+    <button class="nav-tab"        data-tab="settings" onclick="switchTab('settings',this)">Config</button>
   </div>
 
   <!-- ══ BUTEURS ══ -->
   <div id="tab-buteurs" class="tab-pane active">
     <div class="sec-header">
-      <div class="sec-title">⚽ Buteurs</div>
+      <div class="sec-title">Buteurs</div>
       <button class="btn btn-gold btn-sm" onclick="toggleForm('form-but')">+ Ajouter</button>
     </div>
     <div id="form-but" class="card" style="display:none;">
@@ -251,7 +251,7 @@
   <!-- ══ PASSEURS ══ -->
   <div id="tab-passeurs" class="tab-pane">
     <div class="sec-header">
-      <div class="sec-title">🎯 Passeurs</div>
+      <div class="sec-title">Passeurs</div>
       <button class="btn btn-gold btn-sm" onclick="toggleForm('form-pass')">+ Ajouter</button>
     </div>
     <div id="form-pass" class="card" style="display:none;">
@@ -279,14 +279,14 @@
 
   <!-- ══ MATCH ══ -->
   <div id="tab-match" class="tab-pane">
-    <div class="sec-header"><div class="sec-title">📋 Résultats par Journée</div></div>
+    <div class="sec-header"><div class="sec-title">Résultats par Journée</div></div>
     <div id="alert-match" style="margin-bottom:8px;"></div>
 
     <!-- Journée selector -->
     <div class="card">
       <div class="card-title">Sélectionner une journée</div>
       <div id="journee-btns" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
-        <span style="color:var(--text-2);font-size:.8rem;">Charge d'abord le fichier (🔄)</span>
+        <span style="color:var(--text-2);font-size:.8rem;">Charge d'abord le fichier via le bouton Charger</span>
       </div>
     </div>
 
@@ -320,10 +320,10 @@
   <!-- ══ CLASSEMENT ══ -->
   <div id="tab-classement" class="tab-pane">
     <div class="sec-header">
-      <div class="sec-title">📊 Classement</div>
+      <div class="sec-title">Classement</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <span style="font-size:.8rem;color:var(--text-2);">Publier pour envoyer sur le site</span>
-        <button id="btn-edit-class" class="btn btn-outline btn-sm" onclick="toggleClassementEdit()">✏️ Modifier</button>
+        <button id="btn-edit-class" class="btn btn-outline btn-sm" onclick="toggleClassementEdit()">Modifier</button>
       </div>
     </div>
     <div id="alert-class" style="margin-bottom:8px;"></div>
@@ -357,11 +357,11 @@
   <!-- ══ PERFORMANCES ══ -->
   <div id="tab-performances" class="tab-pane">
     <div class="sec-header">
-      <div class="sec-title">⭐ Performances</div>
+      <div class="sec-title">Performances</div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <label style="margin:0;color:var(--text-2);font-size:.7rem;">J.</label>
         <input id="perf-journee" type="number" min="1" max="30" value="2" style="width:54px;">
-        <button class="btn btn-outline btn-sm" onclick="nouvelleJournee()" title="Effacer tous les joueurs pour commencer une nouvelle journée">🗑 Vider</button>
+        <button class="btn btn-outline btn-sm" onclick="nouvelleJournee()" title="Effacer tous les joueurs pour commencer une nouvelle journée">Vider</button>
         <button class="btn btn-gold btn-sm" onclick="toggleForm('form-perf')">+ Joueur</button>
       </div>
     </div>
@@ -401,20 +401,20 @@
 
     <!-- MOTM preview -->
     <div class="card" style="margin-bottom:20px;">
-      <div class="card-title">🏅 Man of the Match (Top 3 auto)</div>
+      <div class="card-title">Man of the Match — Top 3</div>
       <div id="motm-preview"></div>
     </div>
 
     <!-- TOTW Builder -->
     <div class="card" style="margin-bottom:20px;">
-      <div class="card-title">🌟 Équipe Type — Sélection des postes</div>
+      <div class="card-title">Équipe Type — Sélection des postes</div>
       <p style="color:var(--text-2);font-size:.85rem;margin-bottom:14px;">Sélectionne un joueur pour chaque poste. Les joueurs apparaissent après avoir été ajoutés ci-dessus.</p>
       <div id="totw-builder"></div>
     </div>
 
     <!-- Team stats manual -->
     <div class="card">
-      <div class="card-title">📊 Stats Équipes (saisie manuelle)</div>
+      <div class="card-title">Stats Équipes (saisie manuelle)</div>
       <p style="color:var(--text-2);font-size:.85rem;margin-bottom:14px;">La meilleure attaque est calculée automatiquement depuis les buteurs. Remplis défense et série.</p>
       <div class="fg-2" style="margin-bottom:10px;">
         <div><label>Meilleure Défense — Équipe</label><select id="perf-def-team"></select></div>
@@ -429,7 +429,7 @@
 
   <!-- ══ ÉQUIPES ══ -->
   <div id="tab-equipes" class="tab-pane">
-    <div class="sec-header"><div class="sec-title">👥 Gestion des Effectifs</div></div>
+    <div class="sec-header"><div class="sec-title">Gestion des Effectifs</div></div>
     <div id="alert-equipes"></div>
     <div id="teams-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;"></div>
     <div id="team-edit-panel" class="card" style="display:none;">
@@ -447,7 +447,7 @@
 
   <!-- ══ SETTINGS ══ -->
   <div id="tab-settings" class="tab-pane">
-    <div class="sec-header"><div class="sec-title">⚙ Configuration GitHub</div></div>
+    <div class="sec-header"><div class="sec-title">Configuration GitHub</div></div>
     <div class="card">
       <div class="card-title">Connexion GitHub</div>
       <p style="color:var(--text-2);font-size:.9rem;margin-bottom:16px;">
@@ -1267,151 +1267,125 @@ function genTotwCircle(p, pos) {
 function genPerfSection() {
   const journee = parseInt(document.getElementById('perf-journee').value)||2;
   const top3 = [...performances].sort((a,b)=>b.note-a.note).slice(0,3);
-  const MOTM_STYLES = [
-    {border:'rgba(255,215,0,0.3)',color:'var(--gold)',label:`MOTM · J${journee}`},
-    {border:'rgba(192,192,192,0.2)',color:'var(--silver)',label:`TOP 2 · J${journee}`},
-    {border:'rgba(205,127,50,0.2)',color:'var(--bronze)',label:`TOP 3 · J${journee}`},
-  ];
+  const MOTM_CLS   = ['gold','silver','bronze'];
+  const MOTM_LABEL = [`MOTM · J${journee}`,`TOP 2 · J${journee}`,`TOP 3 · J${journee}`];
 
-  const motmCards = top3.map((p,i)=>{
-    const {border,color,label}=MOTM_STYLES[i];
-    const nc=noteColor(p.note);
-    return `        <div class="glass" style="padding:24px;display:flex;align-items:center;gap:16px;border-color:${border}!important;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:${color};flex-shrink:0;">${i+1}</div>
-          <div class="team-avatar avatar-logo" style="width:56px;height:56px;flex-shrink:0;border:2px solid ${color};"><img src="assets/${getLogo(p.team)}" alt="${esc(p.team)}"></div>
-          <div style="flex:1;">
-            <div style="font-size:0.65rem;font-weight:700;letter-spacing:3px;color:${color};margin-bottom:4px;">${label}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:2px;color:#fff;">${esc(p.name)} ⭐</div>
-            <div style="font-size:0.75rem;font-weight:700;color:var(--text-2);">${esc(p.team)}</div>
-          </div>
-          <div style="text-align:center;flex-shrink:0;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.6rem;color:${nc};line-height:1;">${p.note}</div>
-            <div style="font-size:0.65rem;font-weight:700;letter-spacing:1px;color:var(--text-2);">/ 10</div>
-          </div>
-        </div>`;
+  const motmCards = top3.map((p,i) => {
+    const ncCls = p.note >= 8.5 ? 'nc-green' : p.note >= 7 ? 'nc-orange' : 'nc-red';
+    return `      <div class="perf-motm-card ${MOTM_CLS[i]}">
+        <div class="perf-motm-rank">${i+1}</div>
+        <div class="scorer-logo" style="width:44px;height:44px;flex-shrink:0;"><img src="assets/${getLogo(p.team)}" alt="${esc(p.team)}"></div>
+        <div style="flex:1;">
+          <div class="scorer-name">${esc(p.name)}</div>
+          <div class="scorer-team-name">${esc(p.team)}</div>
+          <div class="perf-label">${MOTM_LABEL[i]}</div>
+        </div>
+        <div class="perf-note ${ncCls}">${p.note}<span>/ 10</span></div>
+      </div>`;
   }).join('\n');
 
-  // TOTW rows
-  const totwHTML = TOTW_ROWS.map((row,ri)=>{
-    const isFlex = row.length===1;
-    const wrap = isFlex
-      ? `<div style="display:flex;justify-content:center;width:100%;padding:0 12px;margin-bottom:20px;">`
-      : `<div style="display:flex;justify-content:space-around;align-items:flex-end;width:100%;padding:0 12px;margin-bottom:40px;">`;
-    return wrap + row.map(pos=>genTotwCircle(totwSlots[pos],pos)).join('\n            ') + '</div>';
-  }).join('\n          ');
+  // TOTW pitch rows using new pitch-row / pitch-row-center classes
+  const totwHTML = TOTW_ROWS.map(row => {
+    const rowCls = row.length === 1 ? 'pitch-row-center' : 'pitch-row';
+    return `        <div class="${rowCls}">${row.map(pos => genTotwCircle(totwSlots[pos], pos)).join('\n')}</div>`;
+  }).join('\n');
 
   // Performance ranking (max 3/team)
-  const sorted=[...performances].sort((a,b)=>b.note-a.note);
-  const tc={};
-  const ranked=[];
-  sorted.forEach(p=>{tc[p.team]=(tc[p.team]||0)+1; if(tc[p.team]<=3) ranked.push(p);});
-  let rn=0,pn=null,rd=1;
-  const rankItems = ranked.map((p,i)=>{
+  const sorted = [...performances].sort((a,b) => b.note - a.note);
+  const tc = {};
+  const ranked = [];
+  sorted.forEach(p => { tc[p.team]=(tc[p.team]||0)+1; if(tc[p.team]<=3) ranked.push(p); });
+  let rn=0, pn=null, rd=1;
+  const rankItems = ranked.map((p,i) => {
     rn++; if(p.note!==pn){rd=rn;} pn=p.note;
-    const nc=noteColor(p.note);
-    const pct=Math.round((p.note/10)*100);
-    const rc=i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--muted)';
-    return `        <div class="scorer-full-item">
-          <div class="scorer-full-rank" style="color:${rc};font-size:1.5rem;width:40px;">${rd}</div>
-          <div class="scorer-full-avatar avatar-logo"><img src="assets/${getLogo(p.team)}" alt="${esc(p.team)}"></div>
-          <div class="scorer-full-info">
-            <div class="scorer-full-name">${esc(p.name)}${i<3?' ⭐':''}</div>
-            <div class="scorer-full-team">${esc(p.team)}</div>
-          </div>
-          <div class="scorer-full-bar-wrap"><div class="scorer-full-bar-bg"><div class="scorer-full-bar-fill" style="width:${pct}%"></div></div></div>
-          <div class="scorer-full-goals" style="font-size:1.6rem;color:${nc};">${p.note} <span style="font-size:0.6rem;">/ 10</span></div>
-        </div>`;
+    const ncCls = p.note >= 8.5 ? 'nc-green' : p.note >= 7 ? 'nc-orange' : 'nc-red';
+    return `      <div class="perf-rank-row">
+        <div class="perf-rank-num">${rd}</div>
+        <div class="scorer-logo"><img src="assets/${getLogo(p.team)}" alt="${esc(p.team)}"></div>
+        <div><div class="scorer-name">${esc(p.name)}</div><div class="scorer-team-name">${esc(p.team)}</div></div>
+        <div class="perf-rank-note ${ncCls}">${p.note}<span>/ 10</span></div>
+      </div>`;
   }).join('\n');
 
   // Team stats
-  const teamGoals={};
-  buteurs.forEach(p=>{teamGoals[p.team]=(teamGoals[p.team]||0)+p.goals;});
-  const ba=Object.entries(teamGoals).sort((a,b)=>b[1]-a[1])[0]||['—',0];
-  const defTeam=(document.getElementById('perf-def-team')?.value)||'—';
-  const defBC=(document.getElementById('perf-def-bc')?.value)||'0';
-  const strTeam=(document.getElementById('perf-streak-team')?.value)||'—';
-  const strVal=(document.getElementById('perf-streak-val')?.value)||'0';
+  const teamGoals = {};
+  buteurs.forEach(p => { teamGoals[p.team]=(teamGoals[p.team]||0)+p.goals; });
+  const ba = Object.entries(teamGoals).sort((a,b) => b[1]-a[1])[0]||['—',0];
+  const defTeam = (document.getElementById('perf-def-team')?.value)||'—';
+  const defBC   = (document.getElementById('perf-def-bc')?.value)||'0';
+  const strTeam = (document.getElementById('perf-streak-team')?.value)||'—';
+  const strVal  = (document.getElementById('perf-streak-val')?.value)||'0';
 
-  return `    <!-- ===== TAB: PERFORMANCE ===== -->
-    <div id="tab-performance" class="tab-content" role="tabpanel">
-      <div class="section-title">
-        <span class="icon">⚡</span> Meilleures Performances <span class="line"></span>
+  return `<!-- ===== TAB: PERFORMANCE ===== -->
+  <section id="performances" class="page-section">
+    <div class="section-head">
+      <div class="section-head-left">
+        <div class="sublabel">Saison 1 · Journée ${journee}</div>
+        <h2>Performances &amp; Équipe Type</h2>
       </div>
+    </div>
 
-      <!-- ===== Man of the Match (cumul) ===== -->
-      <div class="section-title" style="margin-bottom:16px;">
-        <span class="icon">🏅</span> Man of the Match — Journée ${journee} <span class="line"></span>
-      </div>
-      <div class="results-full-grid" style="gap:16px;margin-bottom:32px;">
+    <div class="subsection-label">Man of the Match — Journée ${journee}</div>
+    <div class="perf-motm-grid">
 ${motmCards}
-      </div>
+    </div>
 
-
-      <!-- ===== Équipe Type ===== -->
-      <div class="section-title" style="margin-bottom:16px;">
-        <span class="icon">🌟</span> Équipe Type — Journée ${journee} <span class="line"></span>
+    <div class="subsection-label">Équipe Type — Journée ${journee}</div>
+    <div class="pitch-wrap">
+      <div class="pitch-bg"></div>
+      <svg class="pitch-svg" viewBox="0 0 400 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="16" y="12" width="368" height="496" fill="none" stroke="white" stroke-width="2"/>
+        <line x1="16" y1="260" x2="384" y2="260" stroke="white" stroke-width="1.5"/>
+        <circle cx="200" cy="260" r="52" fill="none" stroke="white" stroke-width="1.5"/>
+        <circle cx="200" cy="260" r="3" fill="white"/>
+        <rect x="80" y="12" width="240" height="95" fill="none" stroke="white" stroke-width="1.5"/>
+        <rect x="140" y="12" width="120" height="40" fill="none" stroke="white" stroke-width="1.5"/>
+        <circle cx="200" cy="130" r="3" fill="white"/>
+        <rect x="80" y="413" width="240" height="95" fill="none" stroke="white" stroke-width="1.5"/>
+        <rect x="140" y="468" width="120" height="40" fill="none" stroke="white" stroke-width="1.5"/>
+        <circle cx="200" cy="390" r="3" fill="white"/>
+        <rect x="162" y="6" width="76" height="10" fill="none" stroke="white" stroke-width="1.5"/>
+        <rect x="162" y="504" width="76" height="10" fill="none" stroke="white" stroke-width="1.5"/>
+      </svg>
+      <div class="pitch-inner">
+${totwHTML}
+        <div class="pitch-badge"><span>4 · 3 · 3 &nbsp;·&nbsp; J${journee}</span></div>
       </div>
+    </div>
 
-      <div style="margin-bottom:32px;position:relative;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.7);">
-        <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0d3b0d 0%,#0a2e0a 50%,#0d3b0d 100%);"></div>
-        <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.2;" viewBox="0 0 400 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="16" y="12" width="368" height="496" fill="none" stroke="white" stroke-width="2"/>
-          <line x1="16" y1="260" x2="384" y2="260" stroke="white" stroke-width="1.5"/>
-          <circle cx="200" cy="260" r="52" fill="none" stroke="white" stroke-width="1.5"/>
-          <circle cx="200" cy="260" r="3" fill="white"/>
-          <rect x="80" y="12" width="240" height="95" fill="none" stroke="white" stroke-width="1.5"/>
-          <rect x="140" y="12" width="120" height="40" fill="none" stroke="white" stroke-width="1.5"/>
-          <circle cx="200" cy="130" r="3" fill="white"/>
-          <rect x="80" y="413" width="240" height="95" fill="none" stroke="white" stroke-width="1.5"/>
-          <rect x="140" y="468" width="120" height="40" fill="none" stroke="white" stroke-width="1.5"/>
-          <circle cx="200" cy="390" r="3" fill="white"/>
-          <rect x="162" y="6" width="76" height="10" fill="none" stroke="white" stroke-width="1.5"/>
-          <rect x="162" y="504" width="76" height="10" fill="none" stroke="white" stroke-width="1.5"/>
-        </svg>
-        <div style="position:relative;z-index:1;padding:32px 8px 24px;display:flex;flex-direction:column;gap:0;">
-          ${totwHTML}
-          <div style="text-align:center;margin-top:8px;margin-bottom:4px;">
-            <span style="display:inline-block;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:5px 18px;font-family:'Bebas Neue',sans-serif;font-size:0.75rem;letter-spacing:3px;color:rgba(255,255,255,0.5);">4 · 3 · 3 &nbsp;·&nbsp; J${journee} &nbsp;·&nbsp; JOURNÉE ${journee}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ===== Classement des performances ===== -->
-      <div class="section-title" style="margin-bottom:16px;">
-        <span class="icon">📊</span> Classement des Performances — Journée ${journee} <span class="line"></span>
-      </div>
-      <div class="scorers-full" style="margin-bottom:32px;">
+    <div class="subsection-label">Classement — Journée ${journee}</div>
+    <div class="perf-ranking-wrap">
 ${rankItems}
-      </div>
+    </div>
 
-      <!-- ===== Stats équipes ===== --><!-- ===== Stats équipes ===== --><!-- ===== Stats équipes ===== --><!-- ===== Stats équipes ===== -->
-      <div class="results-full-grid" style="gap:20px;">
-        <div class="glass" style="padding:20px;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--red);margin-bottom:14px;">⚽ Meilleure Attaque</div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div class="team-avatar avatar-logo" style="width:40px;height:40px;flex-shrink:0;"><img src="assets/${getLogo(ba[0])}" alt="${esc(ba[0])}"></div>
-            <div style="flex:1;font-weight:700;">${esc(ba[0])}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--red);">${ba[1]} BP</div>
-          </div>
-        </div>
-        <div class="glass" style="padding:20px;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:#22c55e;margin-bottom:14px;">🛡️ Meilleure Défense</div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div class="team-avatar avatar-logo" style="width:40px;height:40px;flex-shrink:0;"><img src="assets/${getLogo(defTeam)}" alt="${esc(defTeam)}"></div>
-            <div style="flex:1;font-weight:700;">${esc(defTeam)}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#22c55e;">${esc(defBC)} BC</div>
-          </div>
-        </div>
-        <div class="glass" style="padding:20px;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:#f59e0b;margin-bottom:14px;">🔥 Plus Longue Série</div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div class="team-avatar avatar-logo" style="width:40px;height:40px;flex-shrink:0;"><img src="assets/${getLogo(strTeam)}" alt="${esc(strTeam)}"></div>
-            <div style="flex:1;font-weight:700;">${esc(strTeam)}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:#f59e0b;">${esc(strVal)} V</div>
-          </div>
+    <div class="subsection-label">Stats équipes</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:28px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:2px;color:var(--accent);margin-bottom:12px;">Meilleure Attaque</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="scorer-logo" style="width:36px;height:36px;"><img src="assets/${getLogo(ba[0])}" alt="${esc(ba[0])}"></div>
+          <div style="flex:1;font-size:.9rem;font-weight:600;">${esc(ba[0])}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--accent);">${ba[1]} BP</div>
         </div>
       </div>
-    `;
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:2px;color:var(--info);margin-bottom:12px;">Meilleure Défense</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="scorer-logo" style="width:36px;height:36px;"><img src="assets/${getLogo(defTeam)}" alt="${esc(defTeam)}"></div>
+          <div style="flex:1;font-size:.9rem;font-weight:600;">${esc(defTeam)}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--info);">${esc(defBC)} BC</div>
+        </div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:2px;color:var(--warning);margin-bottom:12px;">Plus Longue Série</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="scorer-logo" style="width:36px;height:36px;"><img src="assets/${getLogo(strTeam)}" alt="${esc(strTeam)}"></div>
+          <div style="flex:1;font-size:.9rem;font-weight:600;">${esc(strTeam)}</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--warning);">${esc(strVal)} V</div>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // ════════════════════════════════════
@@ -1698,6 +1672,12 @@ ${genEntries(passeurs,'passeurs')}    </div>
     /(<script type="application\/json" id="matches-data">)<!-- ===== MATCHES-JSON ===== -->[\s\S]*?<!-- \/MATCHES-JSON -->(<\/script>)/,
     `$1<!-- ===== MATCHES-JSON ===== -->${JSON.stringify(matchResults)}<!-- /MATCHES-JSON -->$2`
   );
+
+  // Performances / TOTW
+  if (performances.length > 0) {
+    const perfSection = genPerfSection();
+    html = replaceSection(html, '<!-- ===== TAB: PERFORMANCE ===== -->', '</section><!-- /tab-performance -->', perfSection);
+  }
 
   // Calendrier (no-op si markers absents)
   html = rebuildCalendar(html);
