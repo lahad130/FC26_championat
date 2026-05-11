@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentions légales — eLiga SN</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#0A0E1A; --bg-2:#0F1422;
+      --surface:#131826; --surface-2:#1A2034;
+      --border:#1F2740;
+      --text:#FFFFFF; --text-2:#8B92A8; --text-3:#5A6178;
+      --accent:#00FF87; --accent-dim:rgba(0,255,135,0.13);
+      --danger:#FF2D55;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Manrope',sans-serif;min-height:100vh;line-height:1.7;}
+
+    /* HEADER */
+    header {
+      background:rgba(10,14,26,0.97);
+      border-bottom:1px solid var(--border);
+      padding:0 32px;
+      height:60px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:sticky;
+      top:0;
+      z-index:100;
+      backdrop-filter:blur(20px);
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+    }
+    .brand-logo {
+      width:34px;height:34px;
+      border-radius:50%;
+      overflow:hidden;
+      border:1.5px solid var(--accent);
+      box-shadow:0 0 10px rgba(0,255,135,0.4);
+      flex-shrink:0;
+    }
+    .brand-logo img{width:100%;height:100%;object-fit:cover;}
+    .brand-text .brand-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:#fff;line-height:1;}
+    .brand-text .brand-sub{font-size:0.55rem;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+    .back-btn {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 16px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--text-2);
+      font-family:'Manrope',sans-serif;
+      font-size:.82rem;
+      font-weight:600;
+      text-decoration:none;
+      transition:all .2s;
+    }
+    .back-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+    /* MAIN */
+    main {
+      max-width:760px;
+      margin:0 auto;
+      padding:48px 24px 80px;
+    }
+
+    /* HERO */
+    .legal-hero {
+      margin-bottom:48px;
+      padding-bottom:32px;
+      border-bottom:1px solid var(--border);
+    }
+    .legal-tag {
+      display:inline-block;
+      background:var(--accent-dim);
+      border:1px solid rgba(0,255,135,0.3);
+      color:var(--accent);
+      font-size:0.65rem;
+      font-weight:800;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      padding:4px 12px;
+      border-radius:4px;
+      margin-bottom:16px;
+    }
+    .legal-hero h1 {
+      font-family:'Bebas Neue',sans-serif;
+      font-size:2.6rem;
+      letter-spacing:4px;
+      color:#fff;
+      line-height:1.1;
+      margin-bottom:12px;
+    }
+    .legal-hero p {
+      color:var(--text-2);
+      font-size:.9rem;
+    }
+
+    /* SECTIONS */
+    .legal-section {
+      margin-bottom:48px;
+    }
+    .legal-section-tag {
+      font-family:'Bebas Neue',sans-serif;
+      font-size:.75rem;
+      letter-spacing:4px;
+      color:var(--accent);
+      text-transform:uppercase;
+      margin-bottom:8px;
+    }
+    .legal-section h2 {
+      font-family:'Bebas Neue',sans-serif;
+      font-size:1.5rem;
+      letter-spacing:2px;
+      color:#fff;
+      margin-bottom:20px;
+      padding-bottom:12px;
+      border-bottom:1px solid var(--border);
+    }
+    .legal-section h3 {
+      font-size:.85rem;
+      font-weight:800;
+      color:var(--text);
+      letter-spacing:.5px;
+      text-transform:uppercase;
+      margin:20px 0 8px;
+    }
+    .legal-section p {
+      color:var(--text-2);
+      font-size:.9rem;
+      margin-bottom:12px;
+    }
+    .legal-section ul {
+      color:var(--text-2);
+      font-size:.9rem;
+      padding-left:20px;
+      margin-bottom:12px;
+    }
+    .legal-section li {
+      margin-bottom:6px;
+    }
+    .legal-section a {
+      color:var(--accent);
+      text-decoration:none;
+    }
+    .legal-section a:hover{text-decoration:underline;}
+
+    /* DISCLAIMER BOX */
+    .disclaimer-box {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-left:3px solid var(--accent);
+      border-radius:8px;
+      padding:20px 24px;
+      margin:20px 0;
+    }
+    .disclaimer-box p {
+      color:var(--text-2);
+      font-size:.88rem;
+      margin:0;
+    }
+    .disclaimer-box strong {
+      color:var(--text);
+    }
+
+    .warning-box {
+      background:rgba(255,45,85,0.06);
+      border:1px solid rgba(255,45,85,0.25);
+      border-left:3px solid var(--danger);
+      border-radius:8px;
+      padding:16px 20px;
+      margin:20px 0;
+    }
+    .warning-box p {
+      color:var(--text-2);
+      font-size:.88rem;
+      margin:0;
+    }
+
+    /* INFO GRID */
+    .info-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin:16px 0;
+    }
+    .info-card {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:16px;
+    }
+    .info-card .info-label {
+      font-size:.65rem;
+      font-weight:800;
+      letter-spacing:2px;
+      color:var(--text-3);
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .info-card .info-value {
+      font-size:.9rem;
+      color:var(--text);
+      font-weight:600;
+    }
+
+    /* NAV ANCHORS */
+    .toc {
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:20px 24px;
+      margin-bottom:40px;
+    }
+    .toc-title {
+      font-family:'Bebas Neue',sans-serif;
+      font-size:.85rem;
+      letter-spacing:3px;
+      color:var(--text-3);
+      text-transform:uppercase;
+      margin-bottom:14px;
+    }
+    .toc ol {
+      padding-left:18px;
+    }
+    .toc li {
+      margin-bottom:8px;
+    }
+    .toc a {
+      color:var(--text-2);
+      text-decoration:none;
+      font-size:.9rem;
+      transition:color .15s;
+    }
+    .toc a:hover{color:var(--accent);}
+
+    /* FOOTER */
+    footer {
+      border-top:1px solid var(--border);
+      padding:28px 24px;
+      text-align:center;
+      font-size:11px;
+      color:var(--text-3);
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+    footer a{color:var(--text-2);text-decoration:none;}
+    footer a:hover{color:var(--accent);}
+
+    @media(max-width:600px){
+      header{padding:0 16px;}
+      main{padding:32px 16px 60px;}
+      .legal-hero h1{font-size:2rem;}
+      .info-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="brand">
+    <div class="brand-logo"><img src="assets/logo_eLiga_Sn.webp" alt="eLiga SN"></div>
+    <div class="brand-text">
+      <div class="brand-name">eLiga SN</div>
+      <div class="brand-sub">Pro Club League</div>
+    </div>
+  </a>
+  <a href="index.html" class="back-btn">← Retour au site</a>
+</header>
+
+<main>
+
+  <div class="legal-hero">
+    <div class="legal-tag">Documents légaux</div>
+    <h1>Mentions légales &amp;<br>Politique de confidentialité</h1>
+    <p>Dernière mise à jour : mai 2026 &nbsp;·&nbsp; e-liga.site</p>
+  </div>
+
+  <div class="toc">
+    <div class="toc-title">Sommaire</div>
+    <ol>
+      <li><a href="#mentions-legales">Mentions légales</a></li>
+      <li><a href="#disclaimer-ea">Avertissement — Propriété intellectuelle EA Sports</a></li>
+      <li><a href="#confidentialite">Politique de confidentialité</a></li>
+      <li><a href="#conditions">Conditions d'utilisation</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </div>
+
+  <!-- ===== 1. MENTIONS LÉGALES ===== -->
+  <div class="legal-section" id="mentions-legales">
+    <div class="legal-section-tag">01 — Mentions légales</div>
+    <h2>Mentions légales</h2>
+
+    <h3>Éditeur du site</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-label">Nom du site</div>
+        <div class="info-value">eLiga SN</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Domaine</div>
+        <div class="info-value">e-liga.site</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Nature</div>
+        <div class="info-value">Site communautaire à but non lucratif</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Contact</div>
+        <div class="info-value"><a href="mailto:lahad2re@gmail.com">lahad2re@gmail.com</a></div>
+      </div>
+    </div>
+
+    <h3>Hébergement</h3>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-label">Hébergeur</div>
+        <div class="info-value">GitHub, Inc.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Service</div>
+        <div class="info-value">GitHub Pages</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Adresse</div>
+        <div class="info-value">88 Colin P Kelly Jr St, San Francisco, CA 94107, USA</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Site</div>
+        <div class="info-value"><a href="https://pages.github.com" target="_blank" rel="noopener">pages.github.com</a></div>
+      </div>
+    </div>
+
+    <h3>Registre &amp; statut juridique</h3>
+    <p>
+      eLiga SN est une ligue compétitive communautaire informelle organisée entre joueurs
+      sénégalais de EA SPORTS FC 26 (mode Pro Clubs). Elle n'est pas une entité juridique
+      enregistrée, n'a pas de personnalité morale, et n'exerce aucune activité commerciale.
+      Aucun droit d'inscription, frais d'accès ou monétisation n'est associé à cette ligue
+      ou à ce site.
+    </p>
+
+    <h3>Responsabilité éditoriale</h3>
+    <p>
+      Les informations publiées sur ce site (classements, résultats, statistiques) sont
+      saisies manuellement par les organisateurs de la ligue sur la base des parties jouées
+      entre les participants. L'organisateur s'engage à maintenir ces informations exactes
+      et à jour dans la mesure du possible, sans garantie d'exhaustivité.
+    </p>
+  </div>
+
+  <!-- ===== 2. DISCLAIMER EA SPORTS ===== -->
+  <div class="legal-section" id="disclaimer-ea">
+    <div class="legal-section-tag">02 — Propriété intellectuelle</div>
+    <h2>Avertissement — EA Sports &amp; FC 26</h2>
+
+    <div class="disclaimer-box">
+      <p>
+        <strong>eLiga SN est un site fan-made non officiel.</strong> Ce site n'est pas affilié à,
+        sponsorisé par, approuvé par ou associé à <strong>Electronic Arts Inc.</strong> ou à
+        <strong>EA SPORTS</strong> de quelque manière que ce soit.
+      </p>
+    </div>
+
+    <h3>Marques déposées</h3>
+    <p>
+      Les noms, logos et marques suivants sont la propriété exclusive de leurs détenteurs respectifs :
+    </p>
+    <ul>
+      <li><strong>EA SPORTS FC</strong>, <strong>EA SPORTS FC 26</strong>, <strong>Pro Clubs</strong> sont des marques déposées de <strong>Electronic Arts Inc.</strong></li>
+      <li>Le logo EA, les éléments graphiques du jeu et tout contenu associé sont la propriété d'Electronic Arts Inc.</li>
+      <li>Les noms des équipes participantes, leurs logos et blasons sont la propriété de leurs membres respectifs.</li>
+    </ul>
+
+    <h3>Usage des marques sur ce site</h3>
+    <p>
+      Les références à EA SPORTS FC 26 et Pro Clubs sur ce site sont effectuées à des fins
+      purement descriptives et d'identification du jeu vidéo utilisé pour organiser la compétition.
+      Cet usage relève du droit de citation et ne constitue pas une contrefaçon.
+    </p>
+    <p>
+      Les logos d'équipes affichés sur ce site ont été créés par et pour les équipes participantes.
+      Ils ne reproduisent pas de visuels officiels d'EA Sports.
+    </p>
+
+    <h3>Données de jeu</h3>
+    <p>
+      Les données de classement, résultats et statistiques affichées sur ce site reflètent
+      les performances des joueurs au sein de la compétition eLiga SN uniquement. Ces données
+      sont collectées et saisies manuellement par les organisateurs. Elles n'émanent pas
+      directement des serveurs d'EA Sports et ne constituent pas des données officielles EA.
+    </p>
+
+    <div class="warning-box">
+      <p>
+        Toute demande de retrait de contenu de la part d'Electronic Arts Inc. ou de tout autre
+        titulaire de droits sera traitée dans les plus brefs délais.
+        Contact : <a href="mailto:lahad2re@gmail.com" style="color:var(--accent);">lahad2re@gmail.com</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== 3. POLITIQUE DE CONFIDENTIALITÉ ===== -->
+  <div class="legal-section" id="confidentialite">
+    <div class="legal-section-tag">03 — Données personnelles</div>
+    <h2>Politique de confidentialité</h2>
+
+    <h3>Données collectées</h3>
+    <p>
+      Ce site est une page statique hébergée sur GitHub Pages. <strong>eLiga SN ne collecte,
+      ne stocke ni ne traite aucune donnée personnelle</strong> de ses visiteurs.
+    </p>
+    <p>En particulier :</p>
+    <ul>
+      <li>Aucun formulaire d'inscription ou de connexion pour les visiteurs</li>
+      <li>Aucun compte utilisateur</li>
+      <li>Aucune collecte d'adresse e-mail ou d'information d'identification</li>
+      <li>Aucun outil de tracking ou d'analyse comportementale tiers (Google Analytics, Hotjar, etc.)</li>
+      <li>Aucune publicité ciblée</li>
+    </ul>
+
+    <h3>Pseudonymes des joueurs</h3>
+    <p>
+      Les pseudonymes (gamertags) affichés dans les classements de buteurs, passeurs et
+      statistiques sont les pseudonymes de jeu choisis librement par les joueurs participants.
+      Ces pseudonymes sont rendus publics avec le consentement implicite des joueurs qui
+      s'inscrivent à la compétition eLiga SN.
+    </p>
+    <p>
+      Tout joueur souhaitant faire retirer ou modifier son pseudonyme peut en faire la demande
+      auprès de l'organisateur à l'adresse : <a href="mailto:lahad2re@gmail.com">lahad2re@gmail.com</a>
+    </p>
+
+    <h3>Cookies</h3>
+    <p>
+      Ce site n'utilise pas de cookies de traçage ou de cookies publicitaires.
+      GitHub Pages (hébergeur) peut déposer des cookies techniques nécessaires au fonctionnement
+      de l'infrastructure. Pour en savoir plus, consultez la
+      <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">politique de confidentialité de GitHub</a>.
+    </p>
+
+    <h3>Données de l'interface d'administration</h3>
+    <p>
+      L'interface d'administration (admin.html) utilise le stockage local du navigateur
+      (localStorage) exclusivement pour stocker les identifiants de connexion GitHub fournis
+      par l'administrateur. Ces données restent dans le navigateur de l'administrateur et
+      ne sont jamais transmises à des tiers autres que l'API GitHub pour la publication du site.
+    </p>
+
+    <h3>Droits RGPD</h3>
+    <p>
+      Conformément au Règlement Général sur la Protection des Données (RGPD) et, pour les
+      résidents sénégalais, à la loi n°2008-12 du 25 janvier 2008 sur la protection des
+      données personnelles, vous disposez des droits d'accès, de rectification et de suppression
+      des données vous concernant. Pour exercer ces droits, contactez :
+      <a href="mailto:lahad2re@gmail.com">lahad2re@gmail.com</a>
+    </p>
+  </div>
+
+  <!-- ===== 4. CONDITIONS D'UTILISATION ===== -->
+  <div class="legal-section" id="conditions">
+    <div class="legal-section-tag">04 — Conditions d'utilisation</div>
+    <h2>Conditions d'utilisation</h2>
+
+    <h3>Accès au site</h3>
+    <p>
+      L'accès au site e-liga.site est libre et gratuit. L'organisateur se réserve le droit
+      de modifier, suspendre ou interrompre le site à tout moment sans préavis.
+    </p>
+
+    <h3>Propriété du contenu éditorial</h3>
+    <p>
+      Les contenus originaux du site (textes, mise en page, design) sont produits par
+      l'équipe organisatrice d'eLiga SN. Toute reproduction partielle ou totale est interdite
+      sans autorisation préalable écrite.
+    </p>
+
+    <h3>Exactitude des informations</h3>
+    <p>
+      Les résultats et statistiques sont saisis manuellement et peuvent comporter des erreurs.
+      En cas de contestation d'un résultat, les participants doivent se référer au règlement
+      interne de la ligue et contacter l'organisateur. Le site ne constitue pas une preuve
+      officielle ou juridiquement opposable des résultats sportifs.
+    </p>
+
+    <h3>Comportement des participants</h3>
+    <p>
+      Les participants à la ligue eLiga SN s'engagent à respecter les règles du jeu EA SPORTS
+      FC 26, à adopter un comportement fair-play et à ne pas utiliser de pratiques déloyales
+      (exploits, glitches intentionnels, score manipulation). Tout manquement peut entraîner
+      l'exclusion de la compétition à la discrétion de l'organisateur.
+    </p>
+
+    <h3>Limitation de responsabilité</h3>
+    <p>
+      L'organisateur ne saurait être tenu responsable de tout dommage direct ou indirect
+      résultant de l'utilisation de ce site, d'une interruption de service, ou d'une
+      indisponibilité temporaire. Le site est fourni "en l'état", sans garantie d'aucune sorte.
+    </p>
+
+    <h3>Droit applicable</h3>
+    <p>
+      Les présentes mentions légales sont soumises au droit sénégalais. En cas de litige,
+      et à défaut de résolution amiable, les tribunaux compétents de Dakar (Sénégal) seront
+      saisis.
+    </p>
+  </div>
+
+  <!-- ===== 5. CONTACT ===== -->
+  <div class="legal-section" id="contact">
+    <div class="legal-section-tag">05 — Contact</div>
+    <h2>Contact</h2>
+
+    <div class="disclaimer-box">
+      <p>
+        Pour toute question relative aux mentions légales, à la confidentialité, aux droits
+        d'auteur ou au règlement de la ligue, contactez l'organisateur :<br><br>
+        <strong>E-mail :</strong> <a href="mailto:lahad2re@gmail.com">lahad2re@gmail.com</a><br>
+        <strong>Délai de réponse :</strong> sous 72 heures ouvrables
+      </p>
+    </div>
+
+    <p style="margin-top:16px;">
+      Pour les demandes relatives à la protection des données (droit d'accès, rectification,
+      suppression), précisez dans votre e-mail : <em>"Demande RGPD — [votre pseudonyme]"</em>.
+    </p>
+  </div>
+
+</main>
+
+<footer>
+  <div>eLiga SN · Pro Club League · Saison 1 · 2025/2026</div>
+  <div style="margin-top:8px;color:var(--text-3);">
+    EA SPORTS FC&#8482; et Pro Clubs&#8482; sont des marques d'Electronic Arts Inc.
+    Ce site est un projet communautaire indépendant, sans affiliation officielle.
+  </div>
+  <div style="margin-top:12px;">
+    <a href="index.html">Retour au championnat</a>
+  </div>
+</footer>
+
+</body>
+</html>
