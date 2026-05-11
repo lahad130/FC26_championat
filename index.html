@@ -1083,16 +1083,9 @@
       width: 38px;
       height: 38px;
       border-radius: 6px;
-      background: linear-gradient(135deg, var(--accent) 0%, #00B85F 100%);
-      box-shadow: 0 0 20px rgba(0,255,135,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 18px;
-      color: var(--bg);
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,255,135,0.25);
       flex-shrink: 0;
-      letter-spacing: 0;
     }
     .brand-text { display: flex; flex-direction: column; }
     .brand-name {
@@ -1367,7 +1360,9 @@
   <header class="site-header">
     <div class="site-header-inner">
       <div class="site-brand">
-        <div class="brand-mark">eL</div>
+        <div class="brand-mark">
+          <img src="assets/logo_eLiga_Sn.webp" alt="eLiga SN" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" />
+        </div>
         <div class="brand-text">
           <div class="brand-name">eLiga SN</div>
           <div class="brand-tag">Pro Club League</div>
@@ -1379,7 +1374,9 @@
           <li><button onclick="switchToTab('classement');setActiveNav(this)">Classement</button></li>
           <li><button onclick="switchToTab('resultats');setActiveNav(this)">Résultats</button></li>
           <li><button onclick="switchToTab('calendrier');setActiveNav(this)">Calendrier</button></li>
-          <li><button onclick="switchToTab('buteurs');setActiveNav(this)">Statistiques</button></li>
+          <li><button onclick="switchToTab('buteurs');setActiveNav(this)">Buteurs</button></li>
+          <li><button onclick="switchToTab('passeurs');setActiveNav(this)">Passeurs</button></li>
+          <li><button onclick="switchToTab('performance');setActiveNav(this)">Performance</button></li>
         </ul>
       </nav>
       <div class="season-badge">
