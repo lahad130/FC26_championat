@@ -1433,13 +1433,11 @@ function parseCalendar(html) {
 function renderJourneeBtns() {
   const el = document.getElementById('journee-btns');
   if (!el) return;
-  const jNums = Object.keys(calendarData).map(Number).sort((a,b)=>a-b);
-  if (!jNums.length) { el.innerHTML = '<span style="color:var(--text-2);font-size:.8rem;">Charge d\'abord le fichier (🔄)</span>'; return; }
-  // Find max done journée to highlight next
+  // Toujours afficher J1–J30, pas seulement celles avec des données
   const played = new Set(matchResults.map(m=>m.journee));
   let maxDone = 0;
-  jNums.forEach(j => { if (played.has(j)) maxDone = j; });
-  el.innerHTML = jNums.map(j => {
+  for (let j = 1; j <= 30; j++) { if (played.has(j)) maxDone = j; }
+  el.innerHTML = Array.from({length:30},(_,i)=>i+1).map(j => {
     const done = played.has(j);
     const next = j === maxDone + 1;
     const style = done ? 'background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;'
