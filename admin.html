@@ -535,6 +535,39 @@ let classement  = [];
 let matchResults = [];
 let calendarData = {};
 let currentQuickJournee = null;
+
+const FIXTURES_MASTER = {
+  1:[['Lks Kaido','Teranga Boyz'],['Hood Bi','Xalatt Niakk'],['Blacksquad',"Voile D'or"],['Birago CP','Ghos SN'],['Pluto SN','Tappp SN'],['Inazuma Futur','Senegal'],['Senecao','Asc Galgui'],['Thiapz Prime','Kuluna Yi']],
+  2:[['Teranga Boyz','Lks Kaido'],['Hood Bi','Xalatt Niakk'],['Blacksquad',"Voile D'or"],['Birago CP','Ghos SN'],['Tappp SN','Pluto SN'],['Senegal','Inazuma Futur'],['Asc Galgui','Senecao'],['Kuluna Yi','Thiapz Prime']],
+  3:[["Voile D'or",'Kuluna Yi'],['Blacksquad','Senegal'],['LKS Kaido','Xalatt Niakk'],['Pluto SN','ASC Galgui'],['Thiapz Prime','Ghos SN'],['Teranga Boyz','Inazuma Futur'],['Birago CP','Tappp SN'],['Hood Bi','Senecao']],
+  4:[['Kuluna Yi',"Voile D'or"],['Blacksquad','Senegal'],['Xalatt Niakk','LKS Kaido'],['ASC Galgui','Pluto SN'],['Ghos SN','Thiapz Prime'],['Inazuma Futur','Teranga Boyz'],['Tappp SN','Birago CP'],['Senecao','Hood Bi']],
+  5:[['Blacksquad','Asc Galgui'],['Xalatt Niakk','Kuluna Yi'],['Inazuma Futur','Pluto SN'],['Hood Bi','Thiapz Prime'],['LKS Kaido','Birago CP'],['Tappp SN','Senecao'],['Teranga Boyz','Ghos SN'],['Senegal',"Voile D'or"]],
+  6:[['Asc Galgui','Blacksquad'],['Xalatt Niakk','Kuluna Yi'],['Inazuma Futur','Pluto SN'],['Hood Bi','Thiapz Prime'],['LKS Kaido','Birago CP'],['Tappp SN','Senecao'],['Teranga Boyz','Ghos SN'],['Senegal',"Voile D'or"]],
+  7:[['Birago CP','Senecao'],['LKS Kaido','Tappp SN'],['Senegal','Teranga Boyz'],["Voile D'or",'Ghos SN'],['Hood Bi','Blacksquad'],['Thiapz Prime','Pluto SN'],['ASC Galgui','Kuluna Yi'],['Xalatt Niakk','Inazuma Futur']],
+  8:[['Senecao','Birago CP'],['Tappp SN','LKS Kaido'],['Teranga Boyz','Senegal'],['Ghos SN',"Voile D'or"],['Blacksquad','Hood Bi'],['Pluto SN','Thiapz Prime'],['Kuluna Yi','ASC Galgui'],['Inazuma Futur','Xalatt Niakk']],
+  9:[['Pluto SN','Xalatt Niakk'],['Blacksquad','Inazuma Futur'],['Hood Bi','ASC Galgui'],['Senegal','Kuluna Yi'],["Voile D'or",'Birago CP'],['Ghos SN','Senecao'],['Teranga Boyz','Tappp SN'],['Thiapz Prime','LKS Kaido']],
+  10:[['Xalatt Niakk','Pluto SN'],['Inazuma Futur','Blacksquad'],['ASC Galgui','Hood Bi'],['Kuluna Yi','Senegal'],['Birago CP',"Voile D'or"],['Senecao','Ghos SN'],['Tappp SN','Teranga Boyz'],['LKS Kaido','Thiapz Prime']],
+  11:[['Blacksquad','Xalatt Niakk'],['ASC Galgui','Inazuma Futur'],['Pluto SN','Hood Bi'],['Kuluna Yi','Teranga Boyz'],['Tappp SN',"Voile D'or"],['Senegal','Ghos SN'],['Birago CP','Thiapz Prime'],['LKS Kaido','Senecao']],
+  12:[['Xalatt Niakk','Blacksquad'],['Inazuma Futur','ASC Galgui'],['Hood Bi','Pluto SN'],['Teranga Boyz','Kuluna Yi'],["Voile D'or",'Tappp SN'],['Ghos SN','Senegal'],['Thiapz Prime','Birago CP'],['Senecao','LKS Kaido']],
+  13:[['Blacksquad','Pluto SN'],['ASC Galgui','Xalatt Niakk'],['Hood Bi','Inazuma Futur'],['LKS Kaido','Ghos SN'],['Birago CP','Kuluna Yi'],['Teranga Boyz',"Voile D'or"],['Senegal','Senecao'],['Thiapz Prime','Tappp SN']],
+  14:[['Pluto SN','Blacksquad'],['Xalatt Niakk','ASC Galgui'],['Inazuma Futur','Hood Bi'],['Ghos SN','LKS Kaido'],['Kuluna Yi','Birago CP'],["Voile D'or",'Teranga Boyz'],['Senecao','Senegal'],['Tappp SN','Thiapz Prime']],
+  15:[['Birago CP','ASC Galgui'],['Teranga Boyz','Xalatt Niakk'],['Blacksquad','LKS Kaido'],['Hood Bi','Tappp SN'],['Inazuma Futur',"Voile D'or"],['Pluto SN','Senecao'],['Thiapz Prime','Senegal'],['Kuluna Yi','Ghos SN']],
+  16:[['ASC Galgui','Birago CP'],['Xalatt Niakk','Teranga Boyz'],['LKS Kaido','Blacksquad'],['Tappp SN','Hood Bi'],["Voile D'or",'Inazuma Futur'],['Senecao','Pluto SN'],['Senegal','Thiapz Prime'],['Ghos SN','Kuluna Yi']],
+  17:[['Blacksquad','Ghos SN'],['Tappp SN','Inazuma Futur'],['LKS Kaido','ASC Galgui'],['Thiapz Prime','Xalatt Niakk'],['Hood Bi',"Voile D'or"],['Pluto SN','Teranga Boyz'],['Birago CP','Senegal'],['Senecao','Kuluna Yi']],
+  18:[['Ghos SN','Blacksquad'],['Inazuma Futur','Tappp SN'],['ASC Galgui','LKS Kaido'],['Xalatt Niakk','Thiapz Prime'],["Voile D'or",'Hood Bi'],['Teranga Boyz','Pluto SN'],['Senegal','Birago CP'],['Kuluna Yi','Senecao']],
+  19:[['Blacksquad','Senecao'],['Kuluna Yi','Inazuma Futur'],['Hood Bi','Ghos SN'],['Pluto SN','LKS Kaido'],['Xalatt Niakk',"Voile D'or"],['Thiapz Prime','ASC Galgui'],['Birago CP','Teranga Boyz'],['Senegal','Tappp SN']],
+  20:[['Senecao','Blacksquad'],['Inazuma Futur','Kuluna Yi'],['Ghos SN','Hood Bi'],['LKS Kaido','Pluto SN'],["Voile D'or",'Xalatt Niakk'],['ASC Galgui','Thiapz Prime'],['Teranga Boyz','Birago CP'],['Tappp SN','Senegal']],
+  21:[['Blacksquad','Teranga Boyz'],['Senecao','Xalatt Niakk'],['Pluto SN','Kuluna Yi'],['ASC Galgui','Tappp SN'],['Birago CP','Hood Bi'],['Inazuma Futur','Ghos SN'],['Thiapz Prime',"Voile D'or"],['LKS Kaido','Senegal']],
+  22:[['Teranga Boyz','Blacksquad'],['Xalatt Niakk','Senecao'],['Kuluna Yi','Pluto SN'],['Tappp SN','ASC Galgui'],['Hood Bi','Birago CP'],['Ghos SN','Inazuma Futur'],["Voile D'or",'Thiapz Prime'],['Senegal','LKS Kaido']],
+  23:[['Blacksquad','Thiapz Prime'],['Senegal','Hood Bi'],['Xalatt Niakk','Ghos SN'],['Pluto SN','Birago CP'],['Teranga Boyz','ASC Galgui'],['Senecao','Inazuma Futur'],['LKS Kaido',"Voile D'or"],['Kuluna Yi','Tappp SN']],
+  24:[['Thiapz Prime','Blacksquad'],['Hood Bi','Senegal'],['Ghos SN','Xalatt Niakk'],['Birago CP','Pluto SN'],['ASC Galgui','Teranga Boyz'],['Inazuma Futur','Senecao'],["Voile D'or",'LKS Kaido'],['Tappp SN','Kuluna Yi']],
+  25:[['Blacksquad','Kuluna Yi'],['Pluto SN','Ghos SN'],['Hood Bi','Teranga Boyz'],['Thiapz Prime','Inazuma Futur'],['Birago CP','Xalatt Niakk'],['Senegal','ASC Galgui'],['LKS Kaido','Tappp SN'],['Senecao',"Voile D'or"]],
+  26:[['Kuluna Yi','Blacksquad'],['Ghos SN','Pluto SN'],['Teranga Boyz','Hood Bi'],['Inazuma Futur','Thiapz Prime'],['Xalatt Niakk','Birago CP'],['ASC Galgui','Senegal'],['Tappp SN','LKS Kaido'],["Voile D'or",'Senecao']],
+  27:[['ASC Galgui','Ghos SN'],['Birago CP','Inazuma Futur'],['Pluto SN',"Voile D'or"],['Senegal','Xalatt Niakk'],['LKS Kaido','Hood Bi'],['Blacksquad','Tappp SN'],['Senecao','Teranga Boyz'],['Thiapz Prime','Kuluna Yi']],
+  28:[['Ghos SN','ASC Galgui'],['Inazuma Futur','Birago CP'],["Voile D'or",'Pluto SN'],['Xalatt Niakk','Senegal'],['Hood Bi','LKS Kaido'],['Tappp SN','Blacksquad'],['Teranga Boyz','Senecao'],['Kuluna Yi','Thiapz Prime']],
+  29:[['Pluto SN','Senegal'],['Blacksquad','Birago CP'],['ASC Galgui',"Voile D'or"],['Hood Bi','Kuluna Yi'],['LKS Kaido','Inazuma Futur'],['Xalatt Niakk','Tappp SN'],['Senecao','Ghos SN'],['Thiapz Prime','Teranga Boyz']],
+  30:[['Senegal','Pluto SN'],['Birago CP','Blacksquad'],["Voile D'or",'ASC Galgui'],['Kuluna Yi','Hood Bi'],['Inazuma Futur','LKS Kaido'],['Tappp SN','Xalatt Niakk'],['Ghos SN','Senecao'],['Teranga Boyz','Thiapz Prime']]
+};
 let totwSlots   = {AG:null,BU:null,AD:null,MG:null,MC:null,MD:null,DG:null,DCG:null,DCD:null,DD:null,G:null};
 let modified    = false;
 let rowId       = 0;
@@ -672,6 +705,12 @@ async function loadFromGitHub() {
     calendarData = parseCalendar(fileContent);
     if (!Object.keys(calendarData).length && matchResults.length) {
       calendarData = buildCalendarFromMatches(matchResults);
+    }
+    // Fallback: use master fixtures for any journée not yet in calendarData
+    for (let j = 1; j <= 30; j++) {
+      if (!calendarData[j] && FIXTURES_MASTER[j]) {
+        calendarData[j] = FIXTURES_MASTER[j].map(([t1,t2]) => ({team1:t1, team2:t2}));
+      }
     }
     teamsData    = parseTeamsData(fileContent);
     const jj = parseJourneeNum(fileContent);
