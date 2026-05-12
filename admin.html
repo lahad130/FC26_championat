@@ -1488,8 +1488,19 @@ function renderJourneeBtns() {
 
 function loadQuickMatches(jNum) {
   currentQuickJournee = jNum;
-  const pairs = calendarData[jNum] || [];
   function nrm(s){ return (s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+
+  // Merge any missing fixtures from FIXTURES_MASTER (fixes partial journées like J16)
+  if (FIXTURES_MASTER[jNum]) {
+    const existing = calendarData[jNum] || [];
+    const existNorm = new Set(existing.map(p => nrm(p.team1)+'_'+nrm(p.team2)));
+    const missing = FIXTURES_MASTER[jNum].filter(([t1,t2]) =>
+      !existNorm.has(nrm(t1)+'_'+nrm(t2)) && !existNorm.has(nrm(t2)+'_'+nrm(t1))
+    ).map(([t1,t2]) => ({team1:t1, team2:t2}));
+    if (missing.length) calendarData[jNum] = [...existing, ...missing];
+  }
+
+  const pairs = calendarData[jNum] || [];
   const rmap = {};
   matchResults.forEach((m,idx) => {
     rmap[`${m.journee}_${nrm(m.team1)}_${nrm(m.team2)}`] = {m,idx,flip:false};
@@ -1498,32 +1509,42 @@ function loadQuickMatches(jNum) {
   document.getElementById('quick-title').textContent = `Journée ${jNum}`;
   document.getElementById('quick-section').style.display = '';
   const grid = document.getElementById('quick-grid');
+  const inputBase = `text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;padding:2px 0;line-height:1;width:46px;`;
+  const btnBase = `border-radius:4px;padding:0 6px;height:24px;cursor:pointer;font-size:.8rem;flex-shrink:0;line-height:1;font-weight:700;`;
   grid.innerHTML = pairs.map(({team1,team2},i) => {
     const t1 = TEAMS.find(x=>x.name.toLowerCase()===team1.toLowerCase())||{logo:'Blacksquad.webp'};
     const t2 = TEAMS.find(x=>x.name.toLowerCase()===team2.toLowerCase())||{logo:'Blacksquad.webp'};
     const res = rmap[`${jNum}_${nrm(team1)}_${nrm(team2)}`];
-    let s1=0, s2=0, done=false;
-    if (res) { s1 = res.flip?res.m.score2:res.m.score1; s2 = res.flip?res.m.score1:res.m.score2; done=true; }
+    let s1='', s2='', done=false;
+    if (res) {
+      s1 = res.flip ? res.m.score2 : res.m.score1;
+      s2 = res.flip ? res.m.score1 : res.m.score2;
+      done = true;
+    }
+    // Store original values in data attrs so Cancel can restore them
+    const origS1 = done ? s1 : '';
+    const origS2 = done ? s2 : '';
     const initRes = done ? (s1>s2?'V':s1<s2?'D':'N') : '';
     const initCol = s1>s2?'var(--accent)':s1<s2?'var(--danger)':'var(--warning)';
     const badgeStyle = done
       ? `color:${initCol};border:1px solid ${initCol};background:${initCol}22;border-radius:4px;font-family:'Bebas Neue',sans-serif;font-size:.85rem;min-width:22px;text-align:center;padding:1px 5px;flex-shrink:0;`
       : `color:transparent;border:1px solid transparent;border-radius:4px;font-family:'Bebas Neue',sans-serif;font-size:.85rem;min-width:22px;text-align:center;padding:1px 5px;flex-shrink:0;`;
+    const confirmBtn = `<button title="Confirmer" onclick="qsConfirm(${i})" style="${btnBase}background:rgba(0,255,135,0.15);border:1px solid rgba(0,255,135,0.4);color:var(--accent);">✓</button>`;
+    const cancelBtn  = `<button title="Annuler / Réinitialiser" onclick="qsCancel(${i})" style="${btnBase}background:rgba(255,184,0,0.1);border:1px solid rgba(255,184,0,0.3);color:#ffb800;">↺</button>`;
     const delBtn = done
-      ? `<button title="Supprimer" onclick="deleteQuickMatch(${jNum},this.dataset.t1,this.dataset.t2)" data-t1="${esc(team1)}" data-t2="${esc(team2)}" style="background:rgba(220,53,69,0.15);border:1px solid rgba(220,53,69,0.35);color:#ff6b6b;border-radius:4px;padding:0 6px;height:22px;cursor:pointer;font-size:.8rem;flex-shrink:0;line-height:1;">✕</button>`
-      : '<span style="min-width:24px;"></span>';
-    const inputBase = `text-align:center;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:4px;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;padding:2px 0;line-height:1;width:46px;`;
-    return `<div id="qs-card-${i}" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,${done?'0.18':'0.07'});border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:6px;transition:border-color .2s;" data-t1="${esc(team1)}" data-t2="${esc(team2)}">
+      ? `<button title="Supprimer ce résultat" onclick="deleteQuickMatch(${jNum},this.dataset.t1,this.dataset.t2)" data-t1="${esc(team1)}" data-t2="${esc(team2)}" style="${btnBase}background:rgba(220,53,69,0.15);border:1px solid rgba(220,53,69,0.35);color:#ff6b6b;">✕</button>`
+      : '';
+    return `<div id="qs-card-${i}" data-done="${done}" data-orig-s1="${origS1}" data-orig-s2="${origS2}" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,${done?'0.18':'0.07'});border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:6px;transition:border-color .2s;" data-t1="${esc(team1)}" data-t2="${esc(team2)}">
       <img src="assets/${esc(t1.logo)}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;">
       <span style="font-weight:700;font-size:.83rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(team1)}</span>
-      <input type="number" min="0" id="qs-s1-${i}" value="${s1}" style="${inputBase}"
+      <input type="number" min="0" id="qs-s1-${i}" value="${done?s1:''}" placeholder="—" style="${inputBase}"
         onfocus="this.select()" oninput="qsLive(${i})" onkeydown="qsKey(event,${i},1)">
       <span id="qs-res-${i}" style="${badgeStyle}">${initRes}</span>
-      <input type="number" min="0" id="qs-s2-${i}" value="${s2}" style="${inputBase}"
+      <input type="number" min="0" id="qs-s2-${i}" value="${done?s2:''}" placeholder="—" style="${inputBase}"
         onfocus="this.select()" oninput="qsLive(${i})" onkeydown="qsKey(event,${i},2)">
       <span style="font-weight:700;font-size:.83rem;flex:1;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(team2)}</span>
       <img src="assets/${esc(t2.logo)}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;">
-      ${delBtn}
+      ${confirmBtn}${cancelBtn}${delBtn}
     </div>`;
   }).join('') || '<span style="color:var(--text-2);font-size:.85rem;">Aucun match programmé pour cette journée.</span>';
   // Auto-focus premier input non encore saisi
@@ -1532,6 +1553,36 @@ function loadQuickMatches(jNum) {
   );
   const focusIdx = firstPending >= 0 ? firstPending : 0;
   requestAnimationFrame(() => document.getElementById(`qs-s1-${focusIdx}`)?.focus());
+}
+
+// ── Confirm a single match (bouton ✓ ou Entrée sur s2) ──────────
+function qsConfirm(i) { qsSaveOne(i); }
+
+// ── Cancel / reset inputs to original values ────────────────────
+function qsCancel(i) {
+  const card = document.getElementById(`qs-card-${i}`);
+  if (!card) return;
+  const s1inp = document.getElementById(`qs-s1-${i}`);
+  const s2inp = document.getElementById(`qs-s2-${i}`);
+  if (s1inp) s1inp.value = card.dataset.origS1 ?? '';
+  if (s2inp) s2inp.value = card.dataset.origS2 ?? '';
+  // Restore badge
+  const origS1 = card.dataset.origS1 !== '' ? parseInt(card.dataset.origS1) : NaN;
+  const origS2 = card.dataset.origS2 !== '' ? parseInt(card.dataset.origS2) : NaN;
+  const el = document.getElementById(`qs-res-${i}`);
+  if (el) {
+    if (isNaN(origS1) || isNaN(origS2)) {
+      el.textContent = ''; el.style.color='transparent'; el.style.borderColor='transparent'; el.style.background='transparent';
+    } else {
+      const r = origS1>origS2?'V':origS1<origS2?'D':'N';
+      const c = origS1>origS2?'var(--accent)':origS1<origS2?'var(--danger)':'var(--warning)';
+      el.textContent=r; el.style.color=c; el.style.borderColor=c;
+      el.style.background=origS1>origS2?'rgba(0,255,135,0.13)':origS1<origS2?'rgba(255,45,85,0.13)':'rgba(255,184,0,0.13)';
+    }
+  }
+  // Reset card border
+  const done = card.dataset.done === 'true';
+  card.style.borderColor = done ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.07)';
 }
 
 // ── Live result badge ──────────────────────────────────────────
@@ -1594,9 +1645,14 @@ function qsSaveOne(i) {
   updateTeamStats(team1,score1,score2,r1);
   updateTeamStats(team2,score2,score1,r2);
   sortClassement(); renderClassement(); markMod(); renderJourneeBtns();
-  // Flash la card en vert
+  // Flash la card en vert + mise à jour des data attrs pour Cancel futur
   const card = document.getElementById(`qs-card-${i}`);
-  if (card) { card.style.borderColor='var(--accent)'; }
+  if (card) {
+    card.style.borderColor = 'var(--accent)';
+    card.dataset.done = 'true';
+    card.dataset.origS1 = String(score1);
+    card.dataset.origS2 = String(score2);
+  }
   // Avancer au prochain match non encore saisi
   const nextIdx = pairs.findIndex(({team1:t1,team2:t2},j) => {
     if (j <= i) return false;
@@ -1651,8 +1707,16 @@ function saveQuickScores() {
   pairs.forEach(({team1,team2},i) => {
     const s1v = document.getElementById(`qs-s1-${i}`)?.value ?? '';
     const s2v = document.getElementById(`qs-s2-${i}`)?.value ?? '';
-    if (s1v===''&&s2v==='') return;
+    // Skip si les deux champs sont vides (match non joué = input placeholder "—")
+    if (s1v==='' || s2v==='') return;
     const score1=parseInt(s1v)||0, score2=parseInt(s2v)||0;
+    // Skip 0-0 pour un match non encore enregistré (évite de sauver des inputs non remplis)
+    const alreadyInResults = matchResults.some(m =>
+      m.journee===jNum &&
+      ((nrm(m.team1)===nrm(team1)&&nrm(m.team2)===nrm(team2))||
+       (nrm(m.team1)===nrm(team2)&&nrm(m.team2)===nrm(team1)))
+    );
+    if (score1===0 && score2===0 && !alreadyInResults) return;
     const existIdx = matchResults.findIndex(m =>
       m.journee===jNum &&
       ((nrm(m.team1)===nrm(team1)&&nrm(m.team2)===nrm(team2))||
