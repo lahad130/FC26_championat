@@ -130,43 +130,39 @@
   nav ul li button:hover { color: var(--text); background: var(--surface); }
   nav ul li button.active { color: var(--accent); background: var(--accent-dim); }
 
-  /* === MOBILE BOTTOM NAV === */
+  /* === MOBILE TOP NAV (2nd row inside header) === */
   .mobile-nav {
     display: none;
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: rgba(10,14,26,0.97);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    z-index: 200;
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
-    padding: 0 4px;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid var(--border);
+    background: transparent;
+    padding: 0 12px;
   }
   .mobile-nav::-webkit-scrollbar { display: none; }
   .mobile-nav button {
     flex-shrink: 0;
-    min-width: 64px;
-    padding: 12px 10px 10px;
+    padding: 0 14px;
+    height: 40px;
     background: none;
     border: none;
-    border-top: 2px solid transparent;
-    color: var(--text-3);
+    border-bottom: 2px solid transparent;
+    color: var(--text-2);
     font-family: 'Manrope', sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
     cursor: pointer;
     white-space: nowrap;
     transition: color .15s, border-color .15s;
+    margin-bottom: -1px;
   }
+  .mobile-nav button:hover { color: var(--text); }
   .mobile-nav button.active {
     color: var(--accent);
-    border-top-color: var(--accent);
+    border-bottom-color: var(--accent);
   }
 
   .season-badge {
@@ -824,7 +820,7 @@
     .header-inner { padding: 0 16px; gap: 8px; }
     nav { display: none; }
     .mobile-nav { display: flex; }
-    main { padding: 24px 16px 96px; }
+    main { padding: 24px 16px 60px; }
     .hero-stats { grid-template-columns: repeat(2,1fr); gap: 16px; }
     .hero-stats .stat:nth-child(even) { border-right: none; }
     .hero-stats .stat:nth-child(n+3) { border-top: 1px solid var(--border); padding-top: 16px; border-right: none; }
@@ -868,6 +864,14 @@
       <span>Saison 1 · J16</span>
     </div>
   </div>
+  <nav class="mobile-nav">
+    <button class="active" data-section="overview"     onclick="showSection('overview',this)">Overview</button>
+    <button                data-section="classement"   onclick="showSection('classement',this)">Classement</button>
+    <button                data-section="resultats"    onclick="showSection('resultats',this)">Résultats</button>
+    <button                data-section="statistiques" onclick="showSection('statistiques',this)">Statistiques</button>
+    <button                data-section="passeurs"     onclick="showSection('passeurs',this)">Passeurs</button>
+    <button                data-section="performances" onclick="showSection('performances',this)">Performances</button>
+  </nav>
 </header>
 
 <!-- ==================== MAIN ==================== -->
@@ -2877,15 +2881,6 @@
   renderRecentMatches();
 </script>
 
-<!-- ===== MOBILE BOTTOM NAV ===== -->
-<nav class="mobile-nav">
-  <button class="active" data-section="overview"     onclick="showSection('overview',this)">Overview</button>
-  <button                data-section="classement"   onclick="showSection('classement',this)">Classement</button>
-  <button                data-section="resultats"    onclick="showSection('resultats',this)">Résultats</button>
-  <button                data-section="statistiques" onclick="showSection('statistiques',this)">Stats</button>
-  <button                data-section="passeurs"     onclick="showSection('passeurs',this)">Passeurs</button>
-  <button                data-section="performances" onclick="showSection('performances',this)">Perfs</button>
-</nav>
 
 </body>
 </html>
